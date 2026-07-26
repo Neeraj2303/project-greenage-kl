@@ -22,7 +22,7 @@ PROJECT_GREENAGE-KL/
 │
 ├── convert_xlsx.py             # Python script for preprocessing & database conversion
 ├── update_geojson.py           # Python script for managing geographic/district layers
-├── Kerala_CVD_MultiOmics_Database.xlsx  # Multi-omics study dataset
+├── Kerala_CVD_MultiOmics_Database.xlsx  # Multi-omics study dataset (Private data)
 │
 ├── Project_GREENAGE-KL.pdf      # Complete project description & scientific protocol
 ├── STRUCTURE ABSTRACT.docx     # Abstract outline
