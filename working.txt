@@ -1,0 +1,270 @@
+================================================================================
+GREENAGE-KL / MIKRA-EPIGEN-2026 CLINICAL DATA ENTRY SYSTEM
+System Architecture, Workings, Inputs, Outputs, and Calculation Formulas
+================================================================================
+
+This document explains the full functional and technical design of the GREENAGE-KL
+Data Entry System, detailing page flow, state persistency, calculation models, 
+input variables, and output results.
+
+--------------------------------------------------------------------------------
+1. PROJECT ARCHITECTURE & FILES
+--------------------------------------------------------------------------------
+The project is built as a highly responsive Single-Page Application (SPA) divided
+into modular files for ease of maintenance:
+
+*   index.html (or website.html): Defines the structured HTML5 data form. Contains 
+    the sidebar nav, participant identifier selectors, and 16 modular panels.
+*   styles.css (or website.css): Implements the stylesheet styling (custom HSL color 
+    palette, grid systems, active states, and custom typography).
+*   script.js (or website.js): Coordinates the application logic, event listeners,
+    calculations, data saving/loading, and localStorage caching.
+
+--------------------------------------------------------------------------------
+2. PATIENT SELECTION & STATE FLOW
+--------------------------------------------------------------------------------
+Data entry is structured around a Patient state defined by three keys:
+
+*   Group: "TEST" (Test Group) or "CTRL" (Control Group).
+*   Participant ID (currentPID): Numeric range from 1 to 250.
+*   Timepoint (currentTP): Baseline ("BL"), Month 3 ("M3"), Month 6 ("M6"), or
+    Month 12 ("M12").
+
+Key State Operations:
+*   Unique Record Key (recKey): Combined key format: "Group-PID-Timepoint" 
+    (e.g., "TEST-005-BL" or "CTRL-102-M3").
+*   Persistence: Records are stored client-side in browser LocalStorage under 
+    the key "greenage_data". A state variable "savedRecords" parses this JSON
+    object on load and updates it whenever the user clicks "Save Record".
+*   Enrollment Mini-Map: Generates a 250-cell visual grid matching the active
+    group. Test cells are square; control cells are circular. Cells are color-coded
+    to display registration status (Blue/Green for saved, Amber for current active, 
+    Gray for pending).
+*   Export to CSV: Scans all keys in "savedRecords", aggregates all completed input
+    fields across forms, constructs a comma-separated value string, and initiates 
+    a file download of the full study cohort sheet.
+
+--------------------------------------------------------------------------------
+3. MODULAR DATA PANELS: INPUTS, FORMULAS, AND OUTPUTS
+--------------------------------------------------------------------------------
+
+A. DEMOGRAPHICS & IDENTIFICATION (Panel: p_demo)
+   *   Goal: Record baseline social details and anonymous credentials.
+   *   Inputs:
+       - Participant ID (d_pid): Readonly, auto-filled.
+       - Group (d_group): Readonly, auto-filled.
+       - District (d_district): Dropdown (14 districts of Kerala).
+       - Enrollment Date (d_enroll_date): Date picker.
+       - Full Name (d_name): Plain text.
+       - Study Code (d_code): Anonymous study label (e.g. TVM-T-001).
+       - Date of Birth (d_dob): Date picker.
+       - Sex (d_sex): Dropdown (Male, Female, Other).
+       - Kerala Domicile (d_domicile): Numeric, range 0-80.
+       - Contact: Phone (d_phone), Email (d_email).
+       - Socioeconomic: Education (d_edu), Occupation (d_occ), Monthly Income 
+         (d_income), Residency Type (d_residence).
+       - Lifestyle: Diet Type (d_diet), Physical Activity (d_activity), 
+         Alcohol Use (d_alcohol), Smartphone Access (d_smartphone).
+       - Consent: Consent Date (d_consent_date), Consent Language (d_consent_lang),
+         Consent Obtained By (d_consent_by), CTRI Reg No (d_ctri).
+   *   Outputs / Auto-calculations:
+       - Age (d_age): Readonly.
+       - Formula: Math.floor((Current Date - Date of Birth) / (365.25 * 24 * 3600 * 1000))
+
+B. ANTHROPOMETRY (Panel: p_anthro)
+   *   Goal: Monitor body metrics, composition, and physical changes.
+   *   Inputs:
+       - Height (a_ht): Numeric (cm).
+       - Weight (a_wt): Numeric (kg).
+       - Waist Circumference (a_waist): Numeric (cm).
+       - Hip Circumference (a_hip): Numeric (cm).
+       - Neck Circumference (a_neck): Numeric (cm).
+       - Body Fat % (a_bf): Numeric (%).
+       - Muscle Mass (a_muscle): Numeric (kg).
+   *   Outputs / Auto-calculations:
+       - BMI (a_bmi): Readonly (kg/m2).
+         * Formula: Weight / (Height / 100)^2
+       - BMI Category (a_bmi_cat): Readonly.
+         * Logic (Asian-specific):
+           BMI < 18.5       => "Underweight"
+           18.5 <= BMI < 23 => "Normal (Asian)"
+           23 <= BMI < 25   => "Overweight"
+           25 <= BMI < 30   => "Obese I"
+           BMI >= 30        => "Obese II"
+       - Waist-Hip Ratio (a_whr): Readonly.
+         * Formula: Waist Circumference / Hip Circumference
+
+C. CARDIOVASCULAR BLOOD PRESSURE (Panel: p_bp)
+   *   Goal: Record blood pressure measurements and track averages.
+   *   Inputs:
+       - SBP Reading 1 (v_sbp1), SBP Reading 2 (v_sbp2): Systolic blood pressure (mmHg).
+       - DBP Reading 1 (v_dbp1), DBP Reading 2 (v_dbp2): Diastolic blood pressure (mmHg).
+       - Heart Rate (v_hr): Beats per minute.
+       - Ankle-Brachial Index Left (v_abi_l), ABI Right (v_abi_r).
+       - Pulse Wave Velocity (v_pwv): m/s.
+   *   Outputs / Auto-calculations:
+       - SBP Average (v_sbp_avg): (v_sbp1 + v_sbp2) / 2
+       - DBP Average (v_dbp_avg): (v_dbp1 + v_dbp2) / 2
+       - Pulse Pressure (v_pp): SBP Average - DBP Average
+       - Mean Arterial Pressure (v_map): DBP Average + (Pulse Pressure / 3)
+       - BP Classification (v_bp_class):
+         * Logic (AHA 2025 Guidelines):
+           SBP < 120 and DBP < 80           => "Normal"
+           120 <= SBP <= 129 and DBP < 80   => "Elevated"
+           130 <= SBP <= 139 or 80 <= DBP <= 89 => "Stage 1 Hypertension"
+           SBP >= 140 or DBP >= 90          => "Stage 2 Hypertension"
+
+D. LABORATORY TESTS (Panel: p_labs)
+   *   Goal: Track blood panels including lipids, glycemic parameters, renal profile, etc.
+   *   Inputs:
+       - Lipids: Total Cholesterol (l_tc), LDL (l_ldl), HDL (l_hdl), TG (l_tg).
+       - Glycemia: Fasting Blood Glucose (l_fbg), Insulin (l_insulin), HbA1c (l_hba1c).
+       - Renal/Liver: Serum Creatinine (l_creat), eGFR (l_egfr), ALT (l_alt), AST (l_ast).
+       - Hematology: Hemoglobin (l_hb).
+   *   Outputs / Auto-calculations:
+       - Non-HDL Cholesterol (l_nonhdl): Total Cholesterol - HDL
+       - TC/HDL Ratio (l_tc_hdl): Total Cholesterol / HDL
+       - LDL/HDL Ratio (l_ldl_hdl): LDL / HDL
+       - VLDL Cholesterol (l_vldl): TG / 5
+       - HOMA-IR (l_homa): (FBG * Insulin) / 405
+
+E. FABP-NIR SPECTROSCOPY (Panel: p_fabp)
+   *   Goal: Estimate heart-type Fatty Acid-Binding Protein using infrared spectroscopy.
+   *   Inputs:
+       - NIR Signal Intensity (f_nir): Spectroscopy value.
+   *   Outputs / Auto-calculations:
+       - FABP Category (f_class):
+         * Logic:
+           NIR < 2  => "Normal (<2 ng/mL)"
+           NIR < 6  => "Mildly elevated (2-6 ng/mL)"
+           NIR < 10 => "Elevated (6-10 ng/mL)"
+           NIR >= 10 => "High Risk (>10 ng/mL)"
+
+F. ECHOCARDIOGRAPHY (Panel: p_echo)
+   *   Goal: Capture functional and structural cardiac parameters.
+   *   Inputs:
+       - LVEF (e_lvef): Left ventricular ejection fraction (%).
+       - GLS (e_gls): Global longitudinal strain (%).
+       - E-Wave (e_ewave), A-Wave (e_awave): Mitral inflow velocities.
+       - e' Septal (e_esep), e' Lateral (e_elat): Mitral annular velocities.
+   *   Outputs / Auto-calculations:
+       - LVEF Category (e_lvef_cat):
+         * LVEF >= 55 => "Normal (HFpEF range)"
+         * LVEF >= 40 => "Mildly reduced (HFmrEF)"
+         * LVEF < 40  => "Reduced (HFrEF)"
+       - GLS Category (e_gls_cat):
+         * GLS <= -20 => "Normal (<= -20%)"
+         * GLS <= -18 => "Mildly abnormal (-18 to -20%)"
+         * GLS > -18  => "Subclinical LV dysfunction (> -18%)"
+       - E/A Ratio (e_ea): E-Wave / A-Wave
+       - Average E/e' Ratio (e_ee): E-Wave / ((e' Septal + e' Lateral) / 2)
+
+G. CARDIOSENSE HRV (Panel: p_hrv)
+   *   Goal: Record heart rate variability to evaluate autonomic tone.
+   *   Inputs:
+       - LF/HF Ratio (h_lfhf): Sympathovagal balance parameter.
+       - SDNN (h_sdnn), RMSSD (h_rmssd), Shannon Entropy HRV (h_shannon).
+   *   Outputs / Auto-calculations:
+       - Autonomic Status (h_autonomic):
+         * Logic:
+           LF/HF < 1.0       => "Parasympathetic dominance"
+           1.0 <= LF/HF <= 2.5 => "Balanced"
+           2.5 < LF/HF <= 4.0  => "Mild sympathetic dominance"
+           LF/HF > 4.0       => "Sympathetic dominance (increased cardiovascular risk)"
+
+H. OXIDATIVE STRESS (Panel: p_oxid)
+   *   Goal: Monitor biochemical markers of cell oxidation and enzyme activity.
+   *   Inputs:
+       - GSH (ox_gsh), GSSG (ox_gssg): Glutathione pathway metrics.
+       - MDA (ox_mda): Lipid peroxidation marker.
+       - SOD (ox_sod): Superoxide dismutase activity.
+       - GPx (ox_gpx), 8-OHdG (ox_8ohdg).
+   *   Outputs / Auto-calculations:
+       - GSH/GSSG Ratio (ox_ratio): GSH / GSSG
+       - Oxidative Index (ox_index): (MDA / SOD) * 100
+       - MDA Status (ox_mda_cat):
+         * MDA < 1  => "Normal (<1 umol/L)"
+         * MDA < 3  => "Mildly elevated"
+         * MDA >= 3 => "High oxidative stress"
+       - SOD Status (ox_sod_cat):
+         * SOD > 50  => "Adequate"
+         * SOD > 30  => "Borderline"
+         * SOD <= 30 => "Reduced antioxidant capacity"
+
+I. EPIGENETIC MARKERS (Panel: p_epigen)
+   *   Goal: Track specific gene expression and methylation.
+   *   Inputs:
+       - NRF2 nucleocytoplasmic ratio (ep_nrf2_nuc)
+       - MIR155 Relative Expression (ep_mir155)
+       - DNMT1, DNMT3A, DNMT3B relative levels.
+
+J. SNP GENOTYPING (Panel: p_snp)
+   *   Goal: Record alleles for 9 major cardiovascular risk candidate genes.
+   *   Inputs:
+       - Genotypes: ACE I/D (snp_ace), PCSK9 (snp_pcsk9), PPARG (snp_pparg),
+         MTHFR (snp_mthfr), NOS3 (snp_nos3), GSTM1 (snp_gstm1), GSTT1 (snp_gstt1),
+         SOD2 (snp_sod2), NFE2L2 (snp_nfe2l2).
+       - Call Rate (snp_callrate): % quality.
+       - Methods (snp_method), Platform (snp_lab).
+   *   Outputs / Auto-calculations:
+       - MTHFR Clinical Action (snp_mthfr_action):
+         * "TT" genotype => "High-dose folate + B12 essential"
+         * "CT" genotype => "Folate supplementation advised"
+         * Other         => "Standard methylation"
+
+K. SHANNON CODON RESILIENCE (Panel: p_shannon)
+   *   Goal: Calculate mathematical entropy for 21 amino acid degeneracy families.
+   *   Inputs:
+       - Observed Shannon H' value for families (`jp_h_0` to `jp_h_20`).
+       - Constants (n, hmax) preset per family.
+   *   Outputs / Auto-calculations:
+       - Family Resilience J' (`jp_jp_i`): Observed H' / H_max
+       - Family Status (`jp_status_i`):
+         * J' >= 0.8 => "High resilience"
+         * J' >= 0.6 => "Adequate"
+         * J' >= 0.4 => "Low - review"
+         * J' < 0.4  => "Critical"
+       - Composite mean J' (jp_mean / jp_composite): Sum of all J' / count of families.
+       - Minimum J' observed (jp_min_obs): Minimum J' among active entries.
+       - Low J' count (jp_low_count): Count of families where J' < 0.6.
+       - Intervention status (jp_intervention):
+         * "YES – Dose escalation triggered" if low J' count >= 3, else "No".
+       - Sulforaphane Dose Adjustment (jp_amf_dose):
+         * Low J' count >= 3 => "Escalate to 60 g/day broccoli"
+         * Low J' count >= 1 => "Maintain 50 g/day"
+         * Low J' count = 0  => "Standard 50 g/day"
+
+L. RISK SCORES (Panel: p_scores)
+   *   Goal: Store calculated clinical risk percentages.
+   *   Inputs:
+       - AHA PREVENT score (sc_prevent)
+       - FRS score (sc_frs)
+   *   Outputs / Auto-calculations:
+       - Displays risk values dynamically in top banner score boxes.
+       - Classifies Framingham Risk Category (sc_riskcat).
+
+M. MICROGREEN COMPLIANCE (Panel: p_micro)
+   *   Goal: Monitor microgreens dietary compliance across 26 fortnights (52 weeks).
+   *   Inputs:
+       - Fortnightly columns: Delivered Dose (comp_del_w), Consumed Dose (comp_con_w),
+         Quality (comp_q_w), Tolerability (comp_tol_w), Notes (comp_note_w).
+       - Summary: Missed weeks (comp_missed), Reason (comp_reason).
+   *   Outputs / Auto-calculations:
+       - Fortnightly Compliance % (comp_pct_w): (Consumed Dose / Delivered Dose) * 100
+       - Overall Compliance % (comp_overall): Average of completed fortnights.
+       - Category (comp_cat):
+         * Overall >= 85% => "High Compliance"
+         * Overall >= 70% => "Acceptable Compliance"
+         * Overall < 70%  => "Suboptimal Compliance"
+
+N. ADVERSE EVENTS (Panel: p_adverse)
+   *   Goal: Log adverse symptoms and safety signals.
+   *   Inputs:
+       - Logs: Date, Description, Severity, Relationship, Action, Resolution.
+       - Summary: Total AEs count (ae_total), SAEs (ae_serious), Withdrawn (ae_withdrawn).
+
+O. PARTICIPANT SUMMARY (Panel: p_summary)
+   *   Goal: Comprehensive review of completeness.
+   *   Outputs / Auto-calculations:
+       - Completeness checklist displaying validation status (Complete, Partial,
+         Pending) for all modules based on saved variables.

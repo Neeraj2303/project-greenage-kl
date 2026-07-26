@@ -1,0 +1,139 @@
+@import "tailwindcss";
+
+@theme {
+  --color-health-blue: #3b82f6;
+  --color-health-accent: #2563eb;
+  --color-health-lightBg: #f8fafc;
+  --color-health-green: #10b981;
+  --color-health-greenBg: #ecfdf5;
+  --color-health-orange: #f59e0b;
+  --color-health-orangeBg: #fffbeb;
+  --color-health-red: #ef4444;
+  --color-health-redBg: #fef2f2;
+  --color-health-card: #f1f5f9;
+  --color-health-border: #e2e8f0;
+  
+  --font-sans: 'Inter', 'Manrope', sans-serif;
+}
+
+@variant dark (&:where(.dark, .dark *));
+
+@layer base {
+  html, body {
+    margin: 0;
+    padding: 0;
+    @apply bg-slate-50 text-slate-800 antialiased transition-colors duration-200;
+    font-family: 'Inter', 'Manrope', -apple-system, sans-serif;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Manrope', 'Inter', sans-serif;
+  }
+}
+
+@layer components {
+  .medical-card {
+    @apply bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-5 shadow-sm transition-all duration-300 hover:shadow-md hover:border-slate-300 dark:hover:border-slate-700;
+  }
+  
+  .medical-badge {
+    @apply px-2.5 py-0.5 rounded-full text-xs font-semibold tracking-wide inline-flex items-center gap-1;
+  }
+  
+  .badge-healthy {
+    @apply bg-emerald-50 text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-400 border border-emerald-200/50 dark:border-emerald-800/30;
+  }
+  
+  .badge-warning {
+    @apply bg-amber-50 text-amber-700 dark:bg-amber-950/30 dark:text-amber-400 border border-amber-200/50 dark:border-amber-800/30;
+  }
+  
+  .badge-critical {
+    @apply bg-rose-50 text-rose-700 dark:bg-rose-950/30 dark:text-rose-400 border border-rose-200/50 dark:border-rose-800/30;
+  }
+  
+  .badge-diagnostic {
+    @apply bg-blue-50 text-blue-700 dark:bg-blue-950/30 dark:text-blue-400 border border-blue-200/50 dark:border-blue-800/30;
+  }
+}
+
+/* Custom Scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  @apply bg-slate-200 dark:bg-slate-800 rounded;
+}
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-slate-300 dark:bg-slate-700;
+}
+
+/* Printable Report Styles */
+@media print {
+  body {
+    background-color: white !important;
+    color: black !important;
+    font-size: 11pt !important;
+  }
+  
+  .no-print {
+    display: none !important;
+  }
+  
+  .print-page-break {
+    page-break-before: always;
+  }
+  
+  .medical-card {
+    border: 1px solid #94a3b8 !important;
+    box-shadow: none !important;
+    page-break-inside: avoid;
+    margin-bottom: 20px !important;
+  }
+}
+
+/* Leaflet Map Permanent Labels styling */
+.district-label {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  pointer-events: none !important;
+}
+
+.district-map-label {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-family: 'Inter', sans-serif;
+  text-align: center;
+}
+
+.district-name {
+  font-size: 10px;
+  font-weight: 800;
+  color: #0f172a !important;
+  text-shadow: 0 0 3px #ffffff, 0 0 3px #ffffff, 0 0 3px #ffffff !important;
+}
+
+.district-value {
+  font-size: 8px;
+  font-weight: 700;
+  color: #475569 !important;
+  text-shadow: 0 0 2px #ffffff, 0 0 2px #ffffff !important;
+  margin-top: 1px;
+}
+
+.dark .district-name {
+  color: #f8fafc !important;
+  text-shadow: 0 0 3px #020617, 0 0 3px #020617, 0 0 3px #020617 !important;
+}
+
+.dark .district-value {
+  color: #94a3b8 !important;
+  text-shadow: 0 0 2px #020617, 0 0 2px #020617 !important;
+}
+

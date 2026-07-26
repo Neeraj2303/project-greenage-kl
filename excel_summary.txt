@@ -1,0 +1,54 @@
+=== Excel Database Structure Summary ===
+
+Sheet: 1_Genomics_Data
+- Shape: (100, 30)
+- Columns: ['Patient_ID', 'Age', 'Gender', 'District_Kerala', 'rs1333049_9p21', 'rs10757278_9p21', 'rs2383206_9p21', 'rs1122608_LDLR', 'rs6511720_LDLR', 'rs662799_APOA5']
+
+Sheet: 2_EHR_Clinical_Data
+- Shape: (300, 50)
+- Columns: ['Patient_ID', 'Visit_Date', 'Visit_Type', 'Height_cm', 'Weight_kg', 'BMI', 'Waist_Circumference_cm', 'Hip_Circumference_cm', 'WHR', 'SBP_mmHg']
+
+Sheet: 3_Transcriptomics_Data
+- Shape: (100, 37)
+- Columns: ['Patient_ID', 'Sample_Date', 'Sample_Type', 'IL6_Expression', 'IL1B_Expression', 'TNF_Expression', 'ICAM1_Expression', 'VCAM1_Expression', 'APOB_Expression', 'APOA1_Expression']
+
+Sheet: 4_Proteomics_Data
+- Shape: (100, 39)
+- Columns: ['Patient_ID', 'Sample_Date', 'Sample_Type', 'ApoB_mgdL', 'ApoA1_mgdL', 'ApoB_ApoA1_Ratio', 'Lp_a_mgdL', 'IL6_pgmL', 'IL1beta_pgmL', 'TNFalpha_pgmL']
+
+Sheet: 5_Metabolomics_Data
+- Shape: (100, 54)
+- Columns: ['Patient_ID', 'Sample_Date', 'Sample_Type', 'Leucine_umolL', 'Isoleucine_umolL', 'Valine_umolL', 'Phenylalanine_umolL', 'Tyrosine_umolL', 'Tryptophan_umolL', 'Methionine_umolL']
+
+Sheet: 6_Environmental_Factors
+- Shape: (100, 42)
+- Columns: ['Patient_ID', 'Assessment_Date', 'District_Kerala', 'Residence_Type', 'Coastal_Distance_km', 'Altitude_meters', 'Avg_Temperature_C', 'Avg_Humidity_percent', 'Monsoon_Intensity', 'PM2_5_Annual_ugm3']
+
+Sheet: 7_Lifestyle_Factors
+- Shape: (100, 67)
+- Columns: ['Patient_ID', 'Assessment_Date', 'Diet_Type', 'Vegetarian_Status', 'Fish_Consumption_per_week', 'Red_Meat_Consumption_per_week', 'Processed_Meat_Consumption_per_week', 'Fruits_Servings_per_day', 'Vegetables_Servings_per_day', 'Whole_Grains_Servings_per_day']
+
+Sheet: 8_CVD_Outcomes
+- Shape: (100, 27)
+- Columns: ['Patient_ID', 'Follow_Up_Date', 'Follow_Up_Duration_Months', 'CVD_Event', 'Event_Type', 'Event_Date', 'Days_to_Event', 'Myocardial_Infarction', 'Stroke', 'Heart_Failure']
+
+Sheet: 9_Data_Dictionary
+- Shape: (14, 8)
+- Columns: ['Layer', 'Variable_Name', 'Description', 'Unit', 'Data_Type', 'Range/Categories', 'Missing_Data_Policy', 'Clinical_Significance']
+
+Sheet: 10_Model_Architecture
+- Shape: (80, 3)
+- Columns: ['Component', 'Specification', 'Details']
+
+Sheet: 11_Preprocessing_Pipeline
+- Shape: (48, 5)
+- Columns: ['Step', 'Layer', 'Method', 'Rationale', 'Tools']
+
+Sheet: 12_Kerala_Specific_Factors
+- Shape: (26, 5)
+- Columns: ['Category', 'Factor', 'Relevance', 'Data Source', 'Integration Strategy']
+
+Sheet: 13_Implementation_Timeline
+- Shape: (10, 5)
+- Columns: ['Phase', 'Duration', 'Activities', 'Deliverables', 'Responsible']
+

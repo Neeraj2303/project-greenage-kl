@@ -1,0 +1,2629 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>GREENAGE-KL·Clinical Data Entry System</title>
+    <link rel="stylesheet" href="styles.css?v=2" />
+  </head>
+
+  <body>
+    <!-- TOP BAR -->
+
+    <div class="topbar">
+      <div class="topbar-brand">
+        <img
+          src="logo\logo.png"
+          alt="hridayalaya heart and robotic research centre"
+          class="topbar-logo-img"
+        />
+      </div>
+
+      <div class="topbar-sep">|</div>
+
+      <div class="topbar-logo">GREENAGE-KL</div>
+
+      <div class="topbar-sep">|</div>
+
+      <div class="topbar-sub">
+        MIKRA-EPIGEN-2026 · Clinical Data Entry System
+      </div>
+
+      <div class="topbar-stats">
+        <div class="stat-chip">
+          TEST <span class="val" id="stat_test">0</span>/250
+        </div>
+
+        <div class="stat-chip">
+          CTRL <span class="val" id="stat_ctrl">0</span>/250
+        </div>
+
+        <div class="stat-chip">
+          TOTAL <span class="val" id="stat_total">0</span>/500
+        </div>
+      </div>
+    </div>
+
+    <div class="layout">
+      <!-- SIDEBAR -->
+      <nav class="sidebar">
+        <div class="sidebar-section-label">Registration</div>
+        <button
+          class="nav-btn active"
+          onclick="showPanel('p_demo')"
+          id="nb_demo"
+        >
+          <span class="nav-dot"></span>Demographics
+        </button>
+        <button class="nav-btn" onclick="showPanel('p_anthro')" id="nb_anthro">
+          <span class="nav-dot"></span>Anthropometry
+        </button>
+        <button class="nav-btn" onclick="showPanel('p_risk')" id="nb_risk">
+          <span class="nav-dot"></span>Risk Factors
+        </button>
+
+        <div class="sidebar-section-label">Layer 1 - Clinical</div>
+        <button class="nav-btn" onclick="showPanel('p_bp')" id="nb_bp">
+          <span class="nav-dot"></span>Blood Pressure &amp; Vitals
+        </button>
+        <button class="nav-btn" onclick="showPanel('p_labs')" id="nb_labs">
+          <span class="nav-dot"></span>Laboratory Tests
+        </button>
+        <button class="nav-btn" onclick="showPanel('p_fabp')" id="nb_fabp">
+          <span class="nav-dot"></span>FABP-NIR Spectroscopy
+        </button>
+        <button class="nav-btn" onclick="showPanel('p_echo')" id="nb_echo">
+          <span class="nav-dot"></span>Echocardiography
+        </button>
+        <button class="nav-btn" onclick="showPanel('p_hrv')" id="nb_hrv">
+          <span class="nav-dot"></span>CardioSense HRV
+        </button>
+
+        <div class="sidebar-section-label">Layer 1-Biochemistry</div>
+        <button class="nav-btn" onclick="showPanel('p_oxid')" id="nb_oxid">
+          <span class="nav-dot"></span>Oxidative Stress
+        </button>
+        <button class="nav-btn" onclick="showPanel('p_epigen')" id="nb_epigen">
+          <span class="nav-dot"></span>Epigenetic Markers
+        </button>
+
+        <div class="sidebar-section-label">Layer 2-Genomics</div>
+        <button class="nav-btn" onclick="showPanel('p_snp')" id="nb_snp">
+          <span class="nav-dot"></span>SNP Genotyping
+        </button>
+        <button
+          class="nav-btn"
+          onclick="showPanel('p_shannon')"
+          id="nb_shannon"
+        >
+          <span class="nav-dot"></span>Shannon J' Entropy
+        </button>
+
+        <div class="sidebar-section-label">Risk Scores</div>
+        <button class="nav-btn" onclick="showPanel('p_scores')" id="nb_scores">
+          <span class="nav-dot"></span>AHA PREVENT/FRS
+        </button>
+
+        <div class="sidebar-section-label">Follow-up</div>
+        <button class="nav-btn" onclick="showPanel('p_micro')" id="nb_micro">
+          <span class="nav-dot"></span>Microgreen Compliance
+        </button>
+        <button
+          class="nav-btn"
+          onclick="showPanel('p_adverse')"
+          id="nb_adverse"
+        >
+          <span class="nav-dot"></span>Adverse Events
+        </button>
+        <button
+          class="nav-btn"
+          onclick="showPanel('p_summary')"
+          id="nb_summary"
+        >
+          <span class="nav-dot"></span>Participant Summary
+        </button>
+      </nav>
+
+      <!--MAIN-->
+      <main class="main">
+        <!--PARTICIPANT BAR-->
+        <div class="participant-bar">
+          <div class="group-toggle">
+            <button
+              class="gt-btn active-test"
+              id="btn_test"
+              onclick="setGroup('TEST')"
+            >
+              TEST GROUP
+            </button>
+            <button class="gt-btn" id="btn_ctrl" onclick="setGroup('CTRL')">
+              CONTROL GROUP
+            </button>
+          </div>
+          <div class="pid-nav">
+            <button onclick="prevPID()">‹</button>
+            <div class="pid-display test" id="pid_display">TEST-001</div>
+            <button onclick="nextPID()">›</button>
+          </div>
+          <input
+            class="pid-jump"
+            type="number"
+            id="pid_jump"
+            min="1"
+            max="250"
+            placeholder="# Go"
+            onchange="jumpPID(this.value)"
+          />
+          <div class="timepoint-tabs">
+            <button class="tp-tab active" onclick="setTP('BL')" id="tpBL">
+              Baseline
+            </button>
+            <button class="tp-tab active" onclick="setTP('M3')" id="tpM3">
+              Month 3
+            </button>
+            <button class="tp-tab active" onclick="setTP('M6')" id="tpM6">
+              Month 6
+            </button>
+            <button class="tp-tab active" onclick="setTP('M12')" id="tpM12">
+              Month 12
+            </button>
+          </div>
+        </div>
+
+        <!--ENVIRONMENT MINI-MAP-->
+        <div class="ptable-wrap">
+          <div class="ptable-title">
+            Participant Enrollment Map -
+            <span id="map_label"
+              >TEST GROUP(squares) | CONTROL GROUP(circles)</span
+            >
+          </div>
+          <div
+            style="font-size: 0.68rem; color: var(--mid); margin-bottom: 6px"
+          >
+            <span
+              style="
+                display: inline-block;
+                width: 10px;
+                height: 10px;
+                background: var(--teal2);
+                border-radius: 2px;
+                margin-right: 4px;
+              "
+            ></span
+            >Saved &nbsp;
+            <span
+              style="
+                display: inline-block;
+                width: 10px;
+                height: 10px;
+                background: var(--amber);
+                border-radius: 2px;
+                margin-right: 4px;
+              "
+            ></span
+            >Current &nbsp;
+            <span
+              style="
+                display: inline-block;
+                width: 10px;
+                height: 10px;
+                background: var(--border);
+                border-radius: 2px;
+                margin-right: 4px;
+              "
+            ></span
+            >Pending
+          </div>
+          <div class="prog-grid" id="prog_map"></div>
+        </div>
+
+        <!--==============PANEL: DEMOGRAPHICS============-->
+        <div class="panel active" id="p_demo">
+          <div class="panel-heading">
+            Demographics &amp; Identification<span class="ph-badge"
+              >REGISTRATION</span
+            >
+          </div>
+
+          <div class="sc">
+            <div class="sc-title">
+              <span class="sc-title-bar"></span>Participant Identification
+            </div>
+            <div class="fg fg-4">
+              <div class="fld">
+                <label>Participant ID<span class="req">*</span></label>
+                <input type="text" id="d_pid" readonly class="calc-out" />
+              </div>
+              <div class="fld">
+                <label>Group<span class="req">*</span></label>
+                <input type="text" id="d_group" readonly class="calc-out" />
+              </div>
+              <div class="fld">
+                <label>District<span class="req">*</span></label>
+                <select id="d_district">
+                  <option value="">--Select--</option>
+                  <option>Thiruvananthapuram</option>
+                  <option>Kollam</option>
+                  <option>Pathanamthitta</option>
+                  <option>Alappuzha</option>
+                  <option>Kottayam</option>
+                  <option>Idukki</option>
+                  <option>Ernakulam</option>
+                  <option>Thrissur</option>
+                  <option>Palakkad</option>
+                  <option>Malappuram</option>
+                  <option>Kozhikode</option>
+                  <option>Wayanad</option>
+                  <option>Kannur</option>
+                  <option>Kasaragod</option>
+                </select>
+              </div>
+              <div class="fld">
+                <label>Enrollment Date<span class="req">*</span></label>
+                <input type="date" id="d_enroll_date" />
+              </div>
+              <div class="fld c2">
+                <label>Full Name</label>
+                <input type="text" id="d_name" placeholder="As per ID proof" />
+              </div>
+              <div class="fld">
+                <label>Study Code(Anonymous)</label>
+                <input type="text" id="d_code" placeholder="e.g. TVM-T-001" />
+              </div>
+              <div class="fld">
+                <label>Date of Birth<span class="req">*</span></label>
+                <input type="date" id="d_dob" onchange="calcAge()" />
+              </div>
+              <div class="fld">
+                <label>Age<span class="unit">(years)</span></label>
+                <input type="number" id="d_age" readonly class="calc-out" />
+              </div>
+              <div class="fld">
+                <label>Sex<span class="req">*</span></label>
+                <select id="d_sex">
+                  <option value="">--Select--</option>
+                  <option>Male</option>
+                  <option>Female</option>
+                  <option>Other</option>
+                </select>
+              </div>
+              <div class="fld">
+                <label>Kerala Domicile<span class="unit">(years)</span></label>
+                <input type="number" id="d_domicile" min="0" max="80" />
+              </div>
+              <div class="fld">
+                <label>Phone</label>
+                <input type="text" id="d_phone" placeholder="+91-XXXXXXXXXX" />
+              </div>
+              <div class="fld">
+                <label>Email</label>
+                <input type="text" id="d_email" />
+              </div>
+            </div>
+          </div>
+          <div class="sc">
+            <div class="sc-title">
+              <span class="sc-title-bar teal"></span>Socioeconomic &amp;
+              Lifestyle
+            </div>
+            <div class="fg fg-4">
+              <div class="fld">
+                <label>Education</label>
+                <select id="d_edu">
+                  <option value="">--Select--</option>
+                  <option>No formal education</option>
+                  <option>Primary</option>
+                  <option>Secondary</option>
+                  <option>Higher secondary</option>
+                  <option>Graduate</option>
+                  <option>Postgraduate</option>
+                </select>
+              </div>
+              <div class="fld">
+                <label>Occupation</label>
+                <select id="d_occ">
+                  <option value="">--Select--</option>
+                  <option>Employed - office</option>
+                  <option>Employed manual</option>
+                  <option>Self-employed</option>
+                  <option>Homemaker</option>
+                  <option>Unemployed</option>
+                </select>
+              </div>
+              <div class="fld">
+                <label>Monthly Income<span class="unit">(INR)</span></label>
+                <select id="d_income">
+                  <option value="">--Select--</option>
+                  <option>&lt;10,000</option>
+                  <option>10,001-25,00</option>
+                  <option>25,001-50,000</option>
+                  <option>50,001-1,00,000</option>
+                  <option>&gt;1,00,000</option>
+                </select>
+              </div>
+              <div class="fld">
+                <label>Residency Type</label>
+                <select id="d_residence">
+                  <option value="">--Select--</option>
+                  <option>Urban</option>
+                  <option>Semi-urban</option>
+                  <option>Rural</option>
+                </select>
+              </div>
+              <div class="fld">
+                <label>Diet Type<span class="req">*</span></label>
+                <select id="d_diet">
+                  <option value="">--Select--</option>
+                  <option>Vegetarian</option>
+                  <option>Lacto-vegetarian</option>
+                  <option>Non-vegetarian</option>
+                  <option>Vegan</option>
+                </select>
+              </div>
+              <div class="fld">
+                <label>Physical Activity</label>
+                <select id="d_activity">
+                  <option value="">--Select--</option>
+                  <option>Sedentary</option>
+                  <option>Lightly active</option>
+                  <option>Moderately active</option>
+                  <option>Very active</option>
+                </select>
+              </div>
+              <div class="fld">
+                <label>Alcohol Use</label>
+                <select id="d_alcohol">
+                  <option value="">--Select--</option>
+                  <option>Never</option>
+                  <option>Former</option>
+                  <option>Occasional</option>
+                  <option>Regular</option>
+                </select>
+              </div>
+              <div class="fld">
+                <label>Smartphone Access</label>
+                <select id="d_smartphone">
+                  <option value="">--Select--</option>
+                  <option>Yes - Android</option>
+                  <option>Yes - iOS</option>
+                  <option>No</option>
+                </select>
+              </div>
+            </div>
+          </div>
+          <div class="sc">
+            <div class="sc-title">
+              <span class="sc-title-bar blue"></span>Consent &amp; CTRI
+            </div>
+            <div class="fg fg-4">
+              <div class="fld">
+                <label>Informed Consent Date<span class="req">*</span></label>
+                <input type="date" id="d_consent_date" />
+              </div>
+              <div class="fld">
+                <label>Consent Language</label>
+                <select id="d_consent_lang">
+                  <option value="">--Select--</option>
+                  <option>English</option>
+                  <option>Malayalam</option>
+                  <option>Both</option>
+                </select>
+              </div>
+              <div class="fld">
+                <label>Consent Obtained By</label>
+                <input
+                  type="text"
+                  id="d_consent_by"
+                  placeholder="Staff name / designation"
+                />
+              </div>
+              <div class="fld">
+                <label>CTRI Registration No.</label>
+                <input type="text" id="d_ctri" placeholder="CTRI/2026/..." />
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- ===============================================
+            PANEL: ANTHROPOMETRY
+            =============================================== -->
+
+        <div class="panel" id="p_anthro">
+          <div class="panel-heading">
+            Anthropometry
+            <span class="ph-badge">LAYER 1</span>
+          </div>
+
+          <div class="sc">
+            <div class="sc-title">
+              <span class="sc-title-bar"></span>
+              Body Measurements
+            </div>
+
+            <div class="fg fg-5">
+              <div class="fld">
+                <label
+                  >Height <span class="unit">(cm)</span>
+                  <span class="req">*</span></label
+                >
+                <input
+                  type="number"
+                  id="a_ht"
+                  step="0.1"
+                  onchange="calcBMI()"
+                />
+              </div>
+
+              <div class="fld">
+                <label
+                  >Weight <span class="unit">(kg)</span>
+                  <span class="req">*</span></label
+                >
+                <input
+                  type="number"
+                  id="a_wt"
+                  step="0.1"
+                  onchange="calcBMI()"
+                />
+              </div>
+
+              <div class="fld">
+                <label>BMI <span class="unit">(kg/m²)</span></label>
+                <input
+                  type="number"
+                  id="a_bmi"
+                  readonly
+                  class="calc-out"
+                  step="0.01"
+                />
+              </div>
+
+              <div class="fld">
+                <label>BMI Category</label>
+                <input type="text" id="a_bmi_cat" readonly class="calc-out" />
+              </div>
+
+              <div class="fld">
+                <label
+                  >Waist Circumference <span class="unit">(cm)</span></label
+                >
+                <input type="number" id="a_waist" step="0.1" />
+              </div>
+
+              <div class="fld">
+                <label>Hip Circumference <span class="unit">(cm)</span></label>
+                <input
+                  type="number"
+                  id="a_hip"
+                  step="0.1"
+                  onchange="calcWHR()"
+                />
+              </div>
+
+              <div class="fld">
+                <label>Waist-Hip Ratio</label>
+                <input
+                  type="number"
+                  id="a_whr"
+                  readonly
+                  class="calc-out"
+                  step="0.01"
+                />
+              </div>
+
+              <div class="fld">
+                <label>Neck Circumference <span class="unit">(cm)</span></label>
+                <input type="number" id="a_neck" step="0.1" />
+              </div>
+
+              <div class="fld">
+                <label>Body Fat % <span class="unit">if measured</span></label>
+                <input type="number" id="a_bf" step="0.1" />
+              </div>
+
+              <div class="fld">
+                <label>Muscle Mass <span class="unit">(kg)</span></label>
+                <input type="number" id="a_muscle" step="0.1" />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ===============================================
+            PANEL: RISK FACTORS
+            =============================================== -->
+        <div class="panel" id="p_risk">
+          <div class="panel-heading">
+            CAD Risk Factors
+            <span class="ph-badge">INCLUSION CRITERIA</span>
+          </div>
+
+          <div class="sc">
+            <div class="sc-title">
+              <span class="sc-title-bar red"></span>
+              Cardiovascular Risk Factor Profile
+            </div>
+
+            <div class="fg fg-3">
+              <div class="fld">
+                <label>Hypertension Status <span class="req">*</span></label>
+
+                <select id="r_htn">
+                  <option value="">-- Select --</option>
+                  <option>None</option>
+                  <option>Stage 1 (130–139 / 80–89)</option>
+                  <option>Stage 2 (≥140 / ≥90)</option>
+                  <option>On antihypertensive therapy</option>
+                </select>
+              </div>
+
+              <div class="fld">
+                <label>Dyslipidaemia Status</label>
+
+                <select id="r_dyslip">
+                  <option value="">-- Select --</option>
+                  <option>None</option>
+                  <option>High LDL (&gt;130 mg/dL)</option>
+                  <option>High TG (&gt;150 mg/dL)</option>
+                  <option>Low HDL</option>
+                  <option>Mixed dyslipidaemia</option>
+                  <option>On statin/fibrate</option>
+                </select>
+              </div>
+
+              <div class="fld">
+                <label>Glycaemic Status <span class="req">*</span></label>
+
+                <select id="r_dm">
+                  <option value="">-- Select --</option>
+                  <option>Normoglycaemia</option>
+                  <option>Prediabetes (IFG)</option>
+                  <option>Prediabetes (IGT)</option>
+                  <option>Type 2 DM</option>
+                  <option>On OHA</option>
+                  <option>On insulin</option>
+                </select>
+              </div>
+
+              <div class="fld">
+                <label>Obesity Category</label>
+
+                <select id="r_obesity">
+                  <option value="">-- Select --</option>
+                  <option>Normal (BMI &lt;23)</option>
+                  <option>Overweight (23–24.9)</option>
+                  <option>Obese Class I (25–29.9)</option>
+                  <option>Obese Class II (≥30)</option>
+                  <option>Central obesity only</option>
+                </select>
+              </div>
+
+              <div class="fld">
+                <label>Smoking Status <span class="req">*</span></label>
+
+                <select id="r_smoke">
+                  <option value="">-- Select --</option>
+                  <option>Never</option>
+                  <option>Former (&gt;2 years)</option>
+                  <option>Former (&lt;2 years)</option>
+                  <option>Current – mild (&lt;10/day)</option>
+                  <option>Current – heavy (≥10/day)</option>
+                </select>
+              </div>
+
+              <div class="fld">
+                <label
+                  >Pack-years <span class="unit">if applicable</span></label
+                >
+
+                <input type="number" id="r_packyears" step="0.1" />
+              </div>
+              <div class="fld">
+                <label>Family History CAD</label>
+
+                <select id="r_fhx">
+                  <option value="">-- Select --</option>
+                  <option>None</option>
+                  <option>1° relative – male &lt;55 yrs</option>
+                  <option>1° relative – female &lt;65 yrs</option>
+                  <option>Both parents affected</option>
+                </select>
+              </div>
+
+              <div class="fld">
+                <label>Prior CVD Events</label>
+
+                <select id="r_cvd">
+                  <option value="">-- Select --</option>
+                  <option>None (eligible)</option>
+                  <option>Prior MI – EXCLUDES</option>
+                  <option>Prior PCI – EXCLUDES</option>
+                  <option>Prior CABG – EXCLUDES</option>
+                </select>
+              </div>
+
+              <div class="fld">
+                <label>Eligible for Study? <span class="req">*</span></label>
+
+                <select id="r_eligible">
+                  <option value="">-- Select --</option>
+                  <option>YES – meets inclusion criteria</option>
+                  <option>NO – exclusion criterion met</option>
+                </select>
+              </div>
+
+              <div class="fld c3">
+                <label>Exclusion Reason (if applicable)</label>
+
+                <input
+                  type="text"
+                  id="r_excl_reason"
+                  placeholder="State exclusion criterion triggered"
+                />
+              </div>
+            </div>
+          </div>
+
+          <div class="sc">
+            <div class="sc-title">
+              <span class="sc-title-bar red"></span>
+              Medications at Baseline
+            </div>
+
+            <div class="fg fg-2">
+              <div class="fld">
+                <label>Antihypertensives</label>
+                <input type="text" id="m_antih" placeholder="Drug name, dose" />
+              </div>
+
+              <div class="fld">
+                <label>Statins / Lipid-lowering</label>
+                <input
+                  type="text"
+                  id="m_statin"
+                  placeholder="Drug name, dose"
+                />
+              </div>
+
+              <div class="fld">
+                <label>Antidiabetic Agents</label>
+                <input
+                  type="text"
+                  id="m_antidm"
+                  placeholder="Drug name, dose"
+                />
+              </div>
+
+              <div class="fld">
+                <label>Antiplatelet</label>
+                <input
+                  type="text"
+                  id="m_antiplat"
+                  placeholder="Drug name, dose"
+                />
+              </div>
+
+              <div class="fld">
+                <label>Antioxidant Supplements</label>
+
+                <select id="m_antioxid">
+                  <option>None</option>
+                  <option>Vit C 500 mg/day (eligible)</option>
+                  <option>Vit C &gt;500 mg – EXCLUDES</option>
+                  <option>Vit E &gt;400 IU – EXCLUDES</option>
+                  <option>NAC – EXCLUDES</option>
+                </select>
+              </div>
+
+              <div class="fld">
+                <label>Other Medications</label>
+                <input type="text" id="m_other" placeholder="List any other" />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ===============================================
+            PANEL: BP & VITALS
+            =============================================== -->
+
+        <div class="panel" id="p_bp">
+          <div class="panel-heading">
+            Blood Pressure & Vital Signs
+            <span class="ph-badge">LAYER 1</span>
+          </div>
+
+          <div class="sc">
+            <div class="sc-title">
+              <span class="sc-title-bar teal"></span>
+              Blood Pressure — Two Readings (sitting, 5 min rest)
+            </div>
+
+            <div class="fg fg-5">
+              <div class="fld">
+                <label>SBP Reading 1 <span class="unit">(mmHg)</span></label>
+                <input type="number" id="v_sbp1" onchange="calcBPAvg()" />
+              </div>
+
+              <div class="fld">
+                <label>DBP Reading 1 <span class="unit">(mmHg)</span></label>
+                <input type="number" id="v_dbp1" onchange="calcBPAvg()" />
+              </div>
+              <div class="fld">
+                <label>SBP Reading 2 <span class="unit">(mmHg)</span></label>
+                <input type="number" id="v_sbp2" onchange="calcBPAvg()" />
+              </div>
+
+              <div class="fld">
+                <label>DBP Reading 2 <span class="unit">(mmHg)</span></label>
+                <input type="number" id="v_dbp2" onchange="calcBPAvg()" />
+              </div>
+
+              <div class="fld">
+                <label>Mean SBP <span class="unit">(mmHg)</span></label>
+                <input type="number" id="v_sbp_avg" readonly class="calc-out" />
+              </div>
+
+              <div class="fld">
+                <label>Mean DBP <span class="unit">(mmHg)</span></label>
+                <input type="number" id="v_dbp_avg" readonly class="calc-out" />
+              </div>
+
+              <div class="fld">
+                <label>BP Classification</label>
+                <input type="text" id="v_bp_class" readonly class="calc-out" />
+              </div>
+
+              <div class="fld">
+                <label>Pulse Pressure <span class="unit">(mmHg)</span></label>
+                <input type="number" id="v_pp" readonly class="calc-out" />
+              </div>
+
+              <div class="fld">
+                <label>MAP <span class="unit">(mmHg)</span></label>
+                <input type="number" id="v_map" readonly class="calc-out" />
+              </div>
+              <div class="fld">
+                <label>Arm Used</label>
+                <select id="v_arm">
+                  <option>Right</option>
+                  <option>Left</option>
+                </select>
+              </div>
+
+              <div class="fld">
+                <label>Position</label>
+                <select id="v_pos">
+                  <option>Sitting</option>
+                  <option>Supine</option>
+                  <option>Standing</option>
+                </select>
+              </div>
+
+              <div class="fld">
+                <label>Time of Measurement</label>
+                <input type="text" id="v_bp_time" placeholder="HH:MM" />
+              </div>
+            </div>
+          </div>
+
+          <div class="sc">
+            <div class="sc-title">
+              <span class="sc-title-bar teal"></span>
+              Other Vitals
+            </div>
+
+            <div class="fg fg-5">
+              <div class="fld">
+                <label>Heart Rate <span class="unit">(bpm)</span></label>
+                <input type="number" id="v_hr" />
+              </div>
+
+              <div class="fld">
+                <label>SpO2 <span class="unit">(%)</span></label>
+                <input
+                  type="number"
+                  id="v_spo2"
+                  step="0.1"
+                  min="90"
+                  max="100"
+                />
+              </div>
+
+              <div class="fld">
+                <label>Respiratory Rate <span class="unit">(/min)</span></label>
+                <input type="number" id="v_rr" />
+              </div>
+
+              <div class="fld">
+                <label>Temperature <span class="unit">(°C)</span></label>
+                <input type="number" id="v_temp" step="0.1" />
+              </div>
+
+              <div class="fld">
+                <label
+                  >Random Blood Glucose <span class="unit">(mg/dL)</span></label
+                >
+                <input type="number" id="v_rbg" step="0.1" />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ===============================================
+            PANEL: LABORATORY
+            =============================================== -->
+
+        <div class="panel" id="p_labs">
+          <div class="panel-heading">
+            Laboratory Tests
+            <span class="ph-badge">LAYER 1</span>
+          </div>
+
+          <div class="sc">
+            <div class="sc-title">
+              <span class="sc-title-bar blue"></span>
+              Lipid Profile
+              <span style="font-weight: 400; color: var(--mid)">
+                (fasting)
+              </span>
+            </div>
+
+            <div class="fg fg-5">
+              <div class="fld">
+                <label
+                  >Total Cholesterol <span class="unit">(mg/dL)</span></label
+                >
+                <input type="number" id="l_tc" step="0.1" />
+              </div>
+
+              <div class="fld">
+                <label>LDL-C <span class="unit">(mg/dL)</span></label>
+                <input type="number" id="l_ldl" step="0.1" />
+              </div>
+
+              <div class="fld">
+                <label>HDL-C <span class="unit">(mg/dL)</span></label>
+                <input type="number" id="l_hdl" step="0.1" />
+              </div>
+
+              <div class="fld">
+                <label>Triglycerides <span class="unit">(mg/dL)</span></label>
+                <input type="number" id="l_tg" step="0.1" />
+              </div>
+
+              <div class="fld">
+                <label>Non-HDL-C <span class="unit">(mg/dL)</span></label>
+                <input
+                  type="number"
+                  id="l_nonhdl"
+                  readonly
+                  class="calc-out"
+                  step="0.1"
+                />
+              </div>
+
+              <div class="fld">
+                <label>TC/HDL Ratio</label>
+                <input
+                  type="number"
+                  id="l_tc_hdl"
+                  readonly
+                  class="calc-out"
+                  step="0.01"
+                />
+              </div>
+
+              <div class="fld">
+                <label>LDL/HDL Ratio</label>
+                <input
+                  type="number"
+                  id="l_ldl_hdl"
+                  readonly
+                  class="calc-out"
+                  step="0.01"
+                />
+              </div>
+              <div class="fld">
+                <label>VLDL <span class="unit">(calc. mg/dL)</span></label>
+                <input
+                  type="number"
+                  id="l_vldl"
+                  readonly
+                  class="calc-out"
+                  step="0.1"
+                />
+              </div>
+
+              <div class="fld">
+                <label>Lp(a) <span class="unit">(mg/dL)</span></label>
+                <input type="number" id="l_lpa" step="0.1" />
+              </div>
+
+              <div class="fld">
+                <label>ApoB <span class="unit">(mg/dL)</span></label>
+                <input type="number" id="l_apob" step="0.1" />
+              </div>
+            </div>
+          </div>
+
+          <div class="sc">
+            <div class="sc-title">
+              <span class="sc-title-bar blue"></span>Glycaemia
+            </div>
+
+            <div class="fg fg-5">
+              <div class="fld">
+                <label>FBG <span class="unit">(mg/dL)</span></label>
+                <input type="number" id="l_fbg" step="0.1" />
+              </div>
+
+              <div class="fld">
+                <label>HbA1c <span class="unit">(%)</span></label>
+                <input type="number" id="l_hba1c" step="0.1" />
+              </div>
+
+              <div class="fld">
+                <label
+                  >Fasting Insulin <span class="unit">(µIU/mL)</span></label
+                >
+                <input type="number" id="l_insulin" step="0.1" />
+              </div>
+
+              <div class="fld">
+                <label>HOMA-IR</label>
+                <input
+                  type="number"
+                  id="l_homa"
+                  readonly
+                  class="calc-out"
+                  step="0.01"
+                />
+              </div>
+
+              <div class="fld">
+                <label
+                  >2h OGTT <span class="unit">(mg/dL, if done)</span></label
+                >
+                <input type="number" id="l_ogtt" step="0.1" />
+              </div>
+            </div>
+          </div>
+
+          <div class="sc">
+            <div class="sc-title">
+              <span class="sc-title-bar green"></span>
+              Renal, Hepatic &amp; Inflammatory
+            </div>
+
+            <div class="fg fg-5">
+              <div class="fld">
+                <label
+                  >Serum Creatinine <span class="unit">(mg/dL)</span></label
+                >
+                <input type="number" id="l_creat" step="0.01" />
+              </div>
+
+              <div class="fld">
+                <label>eGFR <span class="unit">(mL/min/1.73m²)</span></label>
+                <input type="number" id="l_egfr" step="0.1" />
+              </div>
+
+              <div class="fld">
+                <label>ALT <span class="unit">(U/L)</span></label>
+                <input type="number" id="l_alt" step="0.1" />
+              </div>
+              <div class="fld">
+                <label>AST <span class="unit">(U/L)</span></label>
+                <input type="number" id="l_ast" step="0.1" />
+              </div>
+
+              <div class="fld">
+                <label>hsCRP <span class="unit">(mg/L)</span></label>
+                <input type="number" id="l_hscrp" step="0.01" />
+              </div>
+
+              <div class="fld">
+                <label>Homocysteine <span class="unit">(µmol/L)</span></label>
+                <input type="number" id="l_hcy" step="0.1" />
+              </div>
+
+              <div class="fld">
+                <label>hsTroponin I <span class="unit">(ng/L)</span></label>
+                <input type="number" id="l_trop" step="0.01" />
+              </div>
+
+              <div class="fld">
+                <label>BNP / NT-proBNP <span class="unit">(pg/mL)</span></label>
+                <input type="number" id="l_bnp" step="0.1" />
+              </div>
+
+              <div class="fld">
+                <label>Uric Acid <span class="unit">(mg/dL)</span></label>
+                <input type="number" id="l_ua" step="0.1" />
+              </div>
+
+              <div class="fld">
+                <label>25 OH Vitamin D <span class="unit">(ng/mL)</span></label>
+                <input type="number" id="l_vitd" step="0.1" />
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- ===============================================
+            PANEL: FABP-NIR
+            =============================================== -->
+
+        <div class="panel" id="p_fabp">
+          <div class="panel-heading">
+            FABP-NIR Spectroscopy
+            <span class="ph-badge">PRIMARY ENDPOINT</span>
+          </div>
+
+          <div class="sc">
+            <div class="sc-title">
+              <span class="sc-title-bar red"></span>
+              H-FABP / FABP3 Measurement
+            </div>
+
+            <div class="fg fg-4">
+              <div class="fld">
+                <label>Sample Collection Date <span class="req">*</span></label>
+                <input type="date" id="f_date" />
+              </div>
+
+              <div class="fld">
+                <label>Collection Time</label>
+                <input type="text" id="f_time" placeholder="HH:MM (fasting)" />
+              </div>
+
+              <div class="fld">
+                <label
+                  >Fasting Duration <span class="unit">(hours)</span></label
+                >
+                <input type="number" id="f_fast" step="0.5" min="8" />
+              </div>
+
+              <div class="fld">
+                <label>Sample Type</label>
+                <select id="f_sample">
+                  <option>Serum (centrifuged)</option>
+                  <option>Plasma (EDTA)</option>
+                </select>
+              </div>
+
+              <div class="fld">
+                <label
+                  >NIR Wavelength Range <span class="unit">(nm)</span></label
+                >
+                <input type="text" id="f_wl" value="750–2500" />
+              </div>
+
+              <div class="fld">
+                <label>Spectral Pre-processing</label>
+                <input
+                  type="text"
+                  id="f_preproc"
+                  value="SG smoothing + SNV + PLS"
+                />
+              </div>
+
+              <div class="fld">
+                <label
+                  >FABP-NIR Result
+                  <span class="unit">(ng/mL)</span>
+                  <span class="req">*</span></label
+                >
+                <input
+                  type="number"
+                  id="f_nir"
+                  step="0.01"
+                  onchange="classifyFABP()"
+                />
+              </div>
+
+              <div class="fld">
+                <label>FABP Classification</label>
+                <input type="text" id="f_class" readonly class="calc-out" />
+              </div>
+
+              <div class="fld">
+                <label
+                  >FABP ELISA (parallel)
+                  <span class="unit">(ng/mL)</span></label
+                >
+                <input type="number" id="f_elisa" step="0.01" />
+              </div>
+
+              <div class="fld">
+                <label
+                  >NIR-ELISA Correlation <span class="unit">(r)</span></label
+                >
+                <input
+                  type="number"
+                  id="f_corr"
+                  step="0.001"
+                  min="-1"
+                  max="1"
+                />
+              </div>
+              <div class="fld">
+                <label>Batch No.</label>
+                <input type="text" id="f_batch" placeholder="NIR-BL-001" />
+              </div>
+
+              <div class="fld">
+                <label>Storage Temp until Analysis</label>
+                <input type="text" id="f_store" value="-80°C" />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ===============================================
+            PANEL: ECHOCARDIOGRAPHY
+            =============================================== -->
+
+        <div class="panel" id="p_echo">
+          <div class="panel-heading">
+            Echocardiography
+            <span class="ph-badge">LAYER 1 — CARDIAC IMAGING</span>
+          </div>
+
+          <div class="sc">
+            <div class="sc-title">
+              <span class="sc-title-bar purple"></span>
+              Systolic Function
+            </div>
+
+            <div class="fg fg-4">
+              <div class="fld">
+                <label>Echo Date</label>
+                <input type="date" id="e_date" />
+              </div>
+
+              <div class="fld">
+                <label>Sonographer / Operator</label>
+                <input type="text" id="e_operator" />
+              </div>
+
+              <div class="fld">
+                <label
+                  >LVEF – Simpson's biplane
+                  <span class="unit">(%)</span>
+                  <span class="req">*</span></label
+                >
+
+                <input
+                  type="number"
+                  id="e_lvef"
+                  step="0.1"
+                  onchange="classifyEcho()"
+                />
+              </div>
+
+              <div class="fld">
+                <label>LVEF Category</label>
+                <input type="text" id="e_lvef_cat" readonly class="calc-out" />
+              </div>
+
+              <div class="fld">
+                <label>LV EDV <span class="unit">(mL)</span></label>
+                <input type="number" id="e_edv" step="0.1" />
+              </div>
+
+              <div class="fld">
+                <label>LV ESV <span class="unit">(mL)</span></label>
+                <input type="number" id="e_esv" step="0.1" />
+              </div>
+
+              <div class="fld">
+                <label>LV EDD <span class="unit">(mm)</span></label>
+                <input type="number" id="e_edd" step="0.1" />
+              </div>
+
+              <div class="fld">
+                <label>LV ESD <span class="unit">(mm)</span></label>
+                <input type="number" id="e_esd" step="0.1" />
+              </div>
+              <div class="fld">
+                <label>IVS Thickness <span class="unit">(mm)</span></label>
+                <input type="number" id="e_ivs" step="0.1" />
+              </div>
+
+              <div class="fld">
+                <label>PW Thickness <span class="unit">(mm)</span></label>
+                <input type="number" id="e_pw" step="0.1" />
+              </div>
+
+              <div class="fld">
+                <label>LV Mass Index <span class="unit">(g/m²)</span></label>
+                <input type="number" id="e_lvmi" step="0.1" />
+              </div>
+
+              <div class="fld">
+                <label>LV Geometry</label>
+
+                <select id="e_geo">
+                  <option value="">-- Select --</option>
+                  <option>Normal</option>
+                  <option>Concentric remodelling</option>
+                  <option>Concentric hypertrophy</option>
+                  <option>Eccentric hypertrophy</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div class="sc">
+            <div class="sc-title">
+              <span class="sc-title-bar purple"></span>
+              Diastolic Function &amp; Global Longitudinal Strain
+            </div>
+
+            <div class="fg fg-4">
+              <div class="fld">
+                <label>E wave <span class="unit">(m/s)</span></label>
+                <input type="number" id="e_ewave" step="0.01" />
+              </div>
+
+              <div class="fld">
+                <label>A wave <span class="unit">(m/s)</span></label>
+                <input type="number" id="e_awave" step="0.01" />
+              </div>
+
+              <div class="fld">
+                <label>E/A Ratio</label>
+                <input
+                  type="number"
+                  id="e_ea"
+                  readonly
+                  class="calc-out"
+                  step="0.01"
+                />
+              </div>
+
+              <div class="fld">
+                <label>DT <span class="unit">(ms)</span></label>
+                <input type="number" id="e_dt" step="1" />
+              </div>
+
+              <div class="fld">
+                <label>e' lateral <span class="unit">(cm/s)</span></label>
+                <input type="number" id="e_elat" step="0.1" />
+              </div>
+
+              <div class="fld">
+                <label>e' septal <span class="unit">(cm/s)</span></label>
+                <input type="number" id="e_esep" step="0.1" />
+              </div>
+
+              <div class="fld">
+                <label>E/e' average</label>
+                <input
+                  type="number"
+                  id="e_ee"
+                  readonly
+                  class="calc-out"
+                  step="0.1"
+                />
+              </div>
+
+              <div class="fld">
+                <label>LA Volume Index <span class="unit">(mL/m²)</span></label>
+                <input type="number" id="e_lavi" step="0.1" />
+              </div>
+
+              <div class="fld">
+                <label>TAPSE <span class="unit">(mm)</span></label>
+                <input type="number" id="e_tapse" step="0.1" />
+              </div>
+
+              <div class="fld">
+                <label>Diastolic Grade</label>
+
+                <select id="e_diastgrade">
+                  <option value="">-- Select --</option>
+                  <option>Normal</option>
+                  <option>Grade I (Relaxation impairment)</option>
+                  <option>Grade II (Pseudonormal)</option>
+                  <option>Grade III (Restrictive)</option>
+                </select>
+              </div>
+
+              <div class="fld">
+                <label
+                  >GLS – speckle tracking
+                  <span class="unit">(%)</span>
+                  <span class="req">*</span></label
+                >
+
+                <input
+                  type="number"
+                  id="e_gls"
+                  step="0.1"
+                  placeholder="e.g. -21.5"
+                  onchange="classifyGLS()"
+                />
+              </div>
+
+              <div class="fld">
+                <label>GLS Category</label>
+                <input type="text" id="e_gls_cat" readonly class="calc-out" />
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- ===============================================
+            PANEL: HRV
+            =============================================== -->
+
+        <div class="panel" id="p_hrv">
+          <div class="panel-heading">
+            CardioSense HRV Analysis
+            <span class="ph-badge">FDA 510(k) CLEARED</span>
+          </div>
+
+          <div class="sc">
+            <div class="sc-title">
+              <span class="sc-title-bar teal"></span>
+              Recording Details
+            </div>
+
+            <div class="fg fg-4">
+              <div class="fld">
+                <label>Recording Date <span class="req">*</span></label>
+                <input type="date" id="h_date" />
+              </div>
+
+              <div class="fld">
+                <label>Recording Time</label>
+                <input type="text" id="h_time" placeholder="HH:MM" />
+              </div>
+
+              <div class="fld">
+                <label>Duration <span class="unit">(min)</span></label>
+                <input type="number" id="h_dur" value="5" />
+              </div>
+
+              <div class="fld">
+                <label>Patient Position</label>
+                <select id="h_pos">
+                  <option>Supine</option>
+                  <option>Sitting</option>
+                </select>
+              </div>
+            </div>
+          </div>
+          <div class="sc">
+            <div class="sc-title">
+              <span class="sc-title-bar teal"></span>
+              Time-Domain Parameters
+            </div>
+
+            <div class="hrv-grid">
+              <div class="fld">
+                <label
+                  >SDNN
+                  <span class="unit">(ms)</span>
+                  <span class="req">*</span></label
+                >
+                <input type="number" id="h_sdnn" step="0.1" />
+              </div>
+
+              <div class="fld">
+                <label
+                  >RMSSD
+                  <span class="unit">(ms)</span>
+                  <span class="req">*</span></label
+                >
+                <input type="number" id="h_rmssd" step="0.1" />
+              </div>
+
+              <div class="fld">
+                <label>pNN50 <span class="unit">(%)</span></label>
+                <input type="number" id="h_pnn50" step="0.1" />
+              </div>
+
+              <div class="fld">
+                <label>Mean RR <span class="unit">(ms)</span></label>
+                <input type="number" id="h_meanrr" step="0.1" />
+              </div>
+
+              <div class="fld">
+                <label>SDSD <span class="unit">(ms)</span></label>
+                <input type="number" id="h_sdsd" step="0.1" />
+              </div>
+
+              <div class="fld">
+                <label>CV <span class="unit">(%)</span></label>
+                <input type="number" id="h_cv" step="0.01" />
+              </div>
+              <div class="fld">
+                <label>Triangular Index (TINN)</label>
+                <input type="number" id="h_tinn" step="0.1" />
+              </div>
+
+              <div class="fld">
+                <label>HRV Index</label>
+                <input type="number" id="h_hrvi" step="0.01" />
+              </div>
+            </div>
+          </div>
+
+          <div class="sc">
+            <div class="sc-title">
+              <span class="sc-title-bar teal"></span>
+              Frequency-Domain Parameters
+            </div>
+
+            <div class="hrv-grid">
+              <div class="fld">
+                <label>VLF Power <span class="unit">(ms²)</span></label>
+                <input type="number" id="h_vlf" step="0.1" />
+              </div>
+
+              <div class="fld">
+                <label>LF Power <span class="unit">(ms²)</span></label>
+                <input type="number" id="h_lf" step="0.1" />
+              </div>
+
+              <div class="fld">
+                <label>HF Power <span class="unit">(ms²)</span></label>
+                <input type="number" id="h_hf" step="0.1" />
+              </div>
+
+              <div class="fld">
+                <label>Total Power <span class="unit">(ms²)</span></label>
+                <input type="number" id="h_tp" step="0.1" />
+              </div>
+
+              <div class="fld">
+                <label>LF/HF Ratio <span class="req">*</span></label>
+                <input
+                  type="number"
+                  id="h_lfhf"
+                  step="0.01"
+                  onchange="classifyHRV()"
+                />
+              </div>
+
+              <div class="fld">
+                <label>LF norm <span class="unit">(n.u.)</span></label>
+                <input type="number" id="h_lfnu" step="0.1" />
+              </div>
+
+              <div class="fld">
+                <label>HF norm <span class="unit">(n.u.)</span></label>
+                <input type="number" id="h_hfnu" step="0.1" />
+              </div>
+
+              <div class="fld">
+                <label>LF Peak <span class="unit">(Hz)</span></label>
+                <input type="number" id="h_lfpeak" step="0.0001" />
+              </div>
+            </div>
+          </div>
+
+          <div class="sc">
+            <div class="sc-title">
+              <span class="sc-title-bar teal"></span>
+              Non-linear Parameters
+            </div>
+
+            <div class="hrv-grid">
+              <div class="fld">
+                <label>Shannon Entropy (HRV) <span class="req">*</span></label>
+                <input type="number" id="h_shannon" step="0.001" />
+              </div>
+              <div class="fld">
+                <label>Sample Entropy (SampEn)</label>
+                <input type="number" id="h_sampen" step="0.001" />
+              </div>
+
+              <div class="fld">
+                <label>Approximate Entropy (ApEn)</label>
+                <input type="number" id="h_apen" step="0.001" />
+              </div>
+
+              <div class="fld">
+                <label>DFA α1</label>
+                <input type="number" id="h_dfa1" step="0.001" />
+              </div>
+
+              <div class="fld">
+                <label>SD1 (Poincaré) <span class="unit">(ms)</span></label>
+                <input type="number" id="h_sd1" step="0.1" />
+              </div>
+
+              <div class="fld">
+                <label>SD2 (Poincaré) <span class="unit">(ms)</span></label>
+                <input type="number" id="h_sd2" step="0.1" />
+              </div>
+
+              <div class="fld">
+                <label>SD1/SD2 Ratio</label>
+                <input type="number" id="h_sd1sd2" step="0.001" />
+              </div>
+
+              <div class="fld">
+                <label>Autonomic Balance Category</label>
+                <input type="text" id="h_autonomic" readonly class="calc-out" />
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- ===============================================
+            PANEL: OXIDATIVE STRESS
+            =============================================== -->
+
+        <div class="panel" id="p_oxid">
+          <div class="panel-heading">
+            Oxidative Stress Biomarkers
+            <span class="ph-badge">LAYER 1</span>
+          </div>
+
+          <div class="sc">
+            <div class="sc-title">
+              <span class="sc-title-bar amber"></span>
+              Primary Oxidative Stress Markers
+            </div>
+
+            <div class="fg fg-4">
+              <div class="fld">
+                <label>Sample Date</label>
+                <input type="date" id="ox_date" />
+              </div>
+
+              <div class="fld">
+                <label>Sample Batch No.</label>
+                <input type="text" id="ox_batch" placeholder="OX-BL-001" />
+              </div>
+
+              <div class="fld">
+                <label
+                  >MDA (TBARS)
+                  <span class="unit">(µmol/L)</span>
+                  <span class="req">*</span></label
+                >
+                <input type="number" id="ox_mda" step="0.001" />
+              </div>
+
+              <div class="fld">
+                <label>MDA Category</label>
+                <input type="text" id="ox_mda_cat" readonly class="calc-out" />
+              </div>
+              <div class="fld">
+                <label
+                  >SOD Activity
+                  <span class="unit">(U/mL)</span>
+                  <span class="req">*</span></label
+                >
+                <input type="number" id="ox_sod" step="0.1" />
+              </div>
+
+              <div class="fld">
+                <label>SOD Category</label>
+                <input type="text" id="ox_sod_cat" readonly class="calc-out" />
+              </div>
+
+              <div class="fld">
+                <label>GPx Activity <span class="unit">(U/mL)</span></label>
+                <input type="number" id="ox_gpx" step="0.1" />
+              </div>
+
+              <div class="fld">
+                <label>Catalase <span class="unit">(U/mL)</span></label>
+                <input type="number" id="ox_cat" step="0.1" />
+              </div>
+
+              <div class="fld">
+                <label>8-OHdG <span class="unit">(ng/mL)</span></label>
+                <input type="number" id="ox_ohdg" step="0.001" />
+              </div>
+
+              <div class="fld">
+                <label
+                  >Total Antioxidant Capacity
+                  <span class="unit">(mM)</span></label
+                >
+                <input type="number" id="ox_tac" step="0.01" />
+              </div>
+
+              <div class="fld">
+                <label
+                  >Reduced Glutathione
+                  <span class="unit">(µmol/g Hb)</span></label
+                >
+                <input type="number" id="ox_gsh" step="0.1" />
+              </div>
+
+              <div class="fld">
+                <label
+                  >Oxidised Glutathione
+                  <span class="unit">(µmol/g Hb)</span></label
+                >
+                <input type="number" id="ox_gssg" step="0.1" />
+              </div>
+
+              <div class="fld">
+                <label>GSH/GSSG Ratio</label>
+                <input
+                  type="number"
+                  id="ox_ratio"
+                  readonly
+                  class="calc-out"
+                  step="0.1"
+                />
+              </div>
+
+              <div class="fld">
+                <label>Oxidative Stress Index</label>
+                <input
+                  type="number"
+                  id="ox_index"
+                  readonly
+                  class="calc-out"
+                  step="0.01"
+                />
+              </div>
+
+              <div class="fld">
+                <label
+                  >Protein Carbonyl <span class="unit">(nmol/mg)</span></label
+                >
+                <input type="number" id="ox_carbonyl" step="0.01" />
+              </div>
+
+              <div class="fld">
+                <label>Nitric Oxide <span class="unit">(µmol/L)</span></label>
+                <input type="number" id="ox_no" step="0.01" />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ===============================================
+            PANEL: EPIGENETIC MARKERS
+
+            =============================================== -->
+
+        <div class="panel" id="p_epigen">
+          <div class="panel-heading">
+            Epigenetic Biomarkers
+            <span class="ph-badge">LAYER 1</span>
+          </div>
+
+          <div class="sc">
+            <div class="sc-title">
+              <span class="sc-title-bar purple"></span>
+              DNA Methylation
+            </div>
+
+            <div class="fg fg-4">
+              <div class="fld">
+                <label
+                  >Global 5-mC Methylation <span class="unit">(%)</span></label
+                >
+                <input type="number" id="ep_5mc" step="0.01" />
+              </div>
+
+              <div class="fld">
+                <label>Global 5-hmC <span class="unit">(%)</span></label>
+                <input type="number" id="ep_5hmc" step="0.01" />
+              </div>
+
+              <div class="fld">
+                <label
+                  >NRF2 Promoter Methylation
+                  <span class="unit">(%)</span></label
+                >
+                <input type="number" id="ep_nrf2_meth" step="0.1" />
+              </div>
+
+              <div class="fld">
+                <label>CDKN2A Methylation <span class="unit">(%)</span></label>
+                <input type="number" id="ep_cdkn2a" step="0.1" />
+              </div>
+            </div>
+          </div>
+
+          <div class="sc">
+            <div class="sc-title">
+              <span class="sc-title-bar purple"></span>
+              Gene Expression — RT-qPCR (fold change vs baseline)
+            </div>
+
+            <div class="fg fg-4">
+              <div class="fld">
+                <label>DNMT3A Expression</label>
+                <input type="number" id="ep_dnmt3a" step="0.001" />
+              </div>
+
+              <div class="fld">
+                <label>DNMT3B Expression</label>
+                <input type="number" id="ep_dnmt3b" step="0.001" />
+              </div>
+
+              <div class="fld">
+                <label>NRF2 Expression</label>
+                <input type="number" id="ep_nrf2_exp" step="0.001" />
+              </div>
+
+              <div class="fld">
+                <label>HO-1 (HMOX1) Expression</label>
+                <input type="number" id="ep_ho1" step="0.001" />
+              </div>
+
+              <div class="fld">
+                <label>NQO1 Expression</label>
+                <input type="number" id="ep_nqo1" step="0.001" />
+              </div>
+
+              <div class="fld">
+                <label>KEAP1 Expression</label>
+                <input type="number" id="ep_keap1" step="0.001" />
+              </div>
+
+              <div class="fld">
+                <label>HDAC1 Expression</label>
+                <input type="number" id="ep_hdac1" step="0.001" />
+              </div>
+              <div class="fld">
+                <label>miR-155 Level</label>
+                <input type="number" id="ep_mir155" step="0.001" />
+              </div>
+            </div>
+          </div>
+
+          <div class="sc">
+            <div class="sc-title">
+              <span class="sc-title-bar purple"></span>
+              Histone Marks — ChIP-qPCR
+            </div>
+
+            <div class="fg fg-4">
+              <div class="fld">
+                <label
+                  >H3K27ac at NRF2 promoter
+                  <span class="unit">(relative enrichment)</span></label
+                >
+                <input type="number" id="ep_h3k27ac_nrf2" step="0.001" />
+              </div>
+
+              <div class="fld">
+                <label>H3K27me3 at NRF2 promoter</label>
+                <input type="number" id="ep_h3k27me3_nrf2" step="0.001" />
+              </div>
+
+              <div class="fld">
+                <label>H3K27ac at HO-1 promoter</label>
+                <input type="number" id="ep_h3k27ac_ho1" step="0.001" />
+              </div>
+
+              <div class="fld">
+                <label
+                  >NRF2 Nuclear Localisation
+                  <span class="unit">(IF score)</span></label
+                >
+                <input type="number" id="ep_nrf2_nuc" step="0.1" />
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- ===============================================
+            PANEL: SNP GENOTYPING
+            =============================================== -->
+
+        <div class="panel" id="p_snp">
+          <div class="panel-heading">
+            SNP Genotyping Panel
+            <span class="ph-badge">LAYER 2 — GENOMICS</span>
+          </div>
+
+          <div class="sc">
+            <div class="sc-title">
+              <span class="sc-title-bar green"></span>
+              9-Gene Genomic Panel
+            </div>
+
+            <div class="snp-grid">
+              <div class="snp-item">
+                <div class="snp-gene">ACE I/D</div>
+                <div class="snp-rs">rs4646994 | RAS axis</div>
+
+                <div class="fld">
+                  <label>Genotype</label>
+
+                  <select id="snp_ace">
+                    <option value=""></option>
+                    <option>II</option>
+                    <option>ID</option>
+                    <option>DD</option>
+                  </select>
+                </div>
+
+                <div class="fld" style="margin-top: 5px">
+                  <label>Risk Allele</label>
+                  <input
+                    type="text"
+                    id="snp_ace_risk"
+                    readonly
+                    class="calc-out"
+                    style="font-size: 0.75rem"
+                  />
+                </div>
+              </div>
+              <div class="snp-item">
+                <div class="snp-gene">PCSK9</div>
+                <div class="snp-rs">rs562556 | LDL-R degradation</div>
+
+                <div class="fld">
+                  <label>Genotype</label>
+
+                  <select id="snp_pcsk9">
+                    <option value=""></option>
+                    <option>AA</option>
+                    <option>AG</option>
+                    <option>GG</option>
+                  </select>
+                </div>
+
+                <div class="fld" style="margin-top: 5px">
+                  <label>Risk Allele</label>
+                  <input
+                    type="text"
+                    id="snp_pcsk9_risk"
+                    readonly
+                    class="calc-out"
+                    style="font-size: 0.75rem"
+                  />
+                </div>
+              </div>
+
+              <div class="snp-item">
+                <div class="snp-gene">HMGCRA Reductase</div>
+                <div class="snp-rs">rs17238484 | Statin PK</div>
+
+                <div class="fld">
+                  <label>Genotype</label>
+
+                  <select id="snp_hmgcoa">
+                    <option value=""></option>
+                    <option>GG</option>
+                    <option>GT</option>
+                    <option>TT</option>
+                  </select>
+                </div>
+
+                <div class="fld" style="margin-top: 5px">
+                  <label>Statin Response</label>
+                  <input
+                    type="text"
+                    id="snp_hmgcoa_rsp"
+                    readonly
+                    class="calc-out"
+                    style="font-size: 0.75rem"
+                  />
+                </div>
+              </div>
+
+              <div class="snp-item">
+                <div class="snp-gene">MTHFR C677T</div>
+                <div class="snp-rs">rs1801133 | Methylation</div>
+                <div class="fld">
+                  <label>Genotype</label>
+                  <select id="snp_mthfr">
+                    <option value=""></option>
+                    <option>CC</option>
+                    <option>CT</option>
+                    <option>TT</option>
+                  </select>
+                </div>
+                <div class="fld" style="margin-top: 5px">
+                  <label>Folate Action</label>
+                  <input
+                    type="text"
+                    id="snp_mthfr_action"
+                    readonly
+                    class="calc-out"
+                    style="font-size: 0.75rem"
+                  />
+                </div>
+              </div>
+
+              <div class="snp-item">
+                <div class="snp-gene">TCF7L2</div>
+                <div class="snp-rs">rs7903146 | T2DM risk</div>
+
+                <div class="fld">
+                  <label>Genotype</label>
+
+                  <select id="snp_tcf7l2">
+                    <option value=""></option>
+                    <option>CC</option>
+                    <option>CT</option>
+                    <option>TT</option>
+                  </select>
+                </div>
+
+                <div class="fld" style="margin-top: 5px">
+                  <label>DM Risk</label>
+                  <input
+                    type="text"
+                    id="snp_tcf7l2_risk"
+                    readonly
+                    class="calc-out"
+                    style="font-size: 0.75rem"
+                  />
+                </div>
+              </div>
+
+              <div class="snp-item">
+                <div class="snp-gene">FTO</div>
+                <div class="snp-rs">rs9939609 | Adiposity</div>
+                <div class="fld">
+                  <label>Genotype</label>
+                  <select id="snp_fto">
+                    <option value=""></option>
+                    <option>TT</option>
+                    <option>TA</option>
+                    <option>AA</option>
+                  </select>
+                </div>
+                <div class="fld" style="margin-top: 5px">
+                  <label>Adiposity Risk</label>
+                  <input
+                    type="text"
+                    id="snp_fto_risk"
+                    readonly
+                    class="calc-out"
+                    style="font-size: 0.75rem"
+                  />
+                </div>
+              </div>
+              <div class="snp-item">
+                <div class="snp-gene">PPARG</div>
+                <div class="snp-rs">rs1801282 | Adipogenesis</div>
+
+                <div class="fld">
+                  <label>Genotype</label>
+
+                  <select id="snp_pparg">
+                    <option value=""></option>
+                    <option>CC</option>
+                    <option>CG</option>
+                    <option>GG</option>
+                  </select>
+                </div>
+
+                <div class="fld" style="margin-top: 5px">
+                  <label>Met Syndrome Risk</label>
+                  <input
+                    type="text"
+                    id="snp_pparg_risk"
+                    readonly
+                    class="calc-out"
+                    style="font-size: 0.75rem"
+                  />
+                </div>
+              </div>
+
+              <div class="snp-item">
+                <div class="snp-gene">NRF2</div>
+                <div class="snp-rs">rs6706649 | Antioxidant</div>
+
+                <div class="fld">
+                  <label>Genotype</label>
+                  <select id="snp_nrf2">
+                    <option value=""></option>
+                    <option>CC</option>
+                    <option>CT</option>
+                    <option>TT</option>
+                  </select>
+                </div>
+                <div class="fld" style="margin-top: 5px">
+                  <label>ROS Burden</label>
+                  <input
+                    type="text"
+                    id="snp_keap1_ros"
+                    readonly
+                    class="calc-out"
+                    style="font-size: 0.75rem"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div class="fg fg-4" style="margin-top: 12px">
+              <div class="fld">
+                <label>Genomic Risk Score (0–16)</label>
+                <input
+                  type="number"
+                  id="snp_total_risk"
+                  readonly
+                  class="calc-out"
+                />
+              </div>
+
+              <div class="fld">
+                <label>Risk Tertile</label>
+                <input
+                  type="text"
+                  id="snp_risk_tertile"
+                  readonly
+                  class="calc-out"
+                />
+              </div>
+
+              <div class="fld">
+                <label>Genotyping Methods</label>
+                <select id="snp_method">
+                  <option>Targeted NGS panels</option>
+                  <option>TaqMan SNP assays</option>
+                  <option>Sanger sequencing</option>
+                  <option>RFLP-PCR</option>
+                </select>
+              </div>
+
+              <div class="fld">
+                <label>Lab / Platform</label>
+                <input
+                  type="text"
+                  id="snp_lab"
+                  placeholder="e.g. Genetika / RGCB"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- ===============================================
+            PANEL: SHANNON J'
+            =============================================== -->
+
+        <div class="panel" id="p_shannon">
+          <div class="panel-heading">
+            Shannon Codon Entropy J' Framework
+            <span class="ph-badge">LAYER 2</span>
+          </div>
+
+          <div class="sc">
+            <div class="sc-title">
+              <span class="sc-title-bar green"></span>
+              Codon Degeneracy Groups Index by Amino Acid Family
+            </div>
+
+            <table class="ct">
+              <thead>
+                <tr>
+                  <th>AA Family</th>
+                  <th>Group</th>
+                  <th>Codons (N)</th>
+                  <th>Observed H′</th>
+                  <th>H_max</th>
+                  <th>J′ (H′/H_max)</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+
+              <tbody id="shannon_table_body"></tbody>
+            </table>
+            <div class="sc" style="margin-top: 12px">
+              <div class="sc-title">
+                <span class="sc-title-bar green"></span>
+                Composite J′ Summary
+              </div>
+
+              <div class="fg fg-4">
+                <div class="fld">
+                  <label>Mean J′ (all codon families)</label>
+                  <input
+                    type="number"
+                    id="jp_mean"
+                    readonly
+                    class="calc-out"
+                    step="0.001"
+                  />
+                </div>
+
+                <div class="fld">
+                  <label>Minimum J′ observed</label>
+                  <input
+                    type="number"
+                    id="jp_min_obs"
+                    readonly
+                    class="calc-out"
+                    step="0.001"
+                  />
+                </div>
+
+                <div class="fld">
+                  <label>Families with J′ &lt; 0.6</label>
+                  <input
+                    type="number"
+                    id="jp_low_count"
+                    readonly
+                    class="calc-out"
+                  />
+                </div>
+
+                <div class="fld">
+                  <label>Intervention Triggered?</label>
+                  <input
+                    type="text"
+                    id="jp_intervention"
+                    readonly
+                    class="calc-out"
+                  />
+                </div>
+
+                <div class="fld">
+                  <label>Composite J′ Score</label>
+                  <input
+                    type="number"
+                    id="jp_composite"
+                    readonly
+                    class="calc-out"
+                    step="0.001"
+                  />
+                </div>
+
+                <div class="fld">
+                  <label>J′ Resilience Category</label>
+                  <input type="text" id="jp_cat" readonly class="calc-out" />
+                </div>
+                <div class="fld">
+                  <label>Sulforaphane Dose Adjustment</label>
+                  <input
+                    type="text"
+                    id="jp_amf_dose"
+                    readonly
+                    class="calc-out"
+                  />
+                </div>
+
+                <div class="fld">
+                  <label>Computation Date</label>
+                  <input type="date" id="jp_date" />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ===============================================
+            PANEL: RISK SCORES
+            =============================================== -->
+
+        <div class="panel" id="p_scores">
+          <div class="panel-heading">
+            Cardiovascular Risk Scores
+            <span class="ph-badge">AHA PREVENT / FRAMINGHAM</span>
+          </div>
+
+          <div class="score-box">
+            <div class="score-item">
+              <div class="score-val" id="sc_prevent_display">--</div>
+              <div class="score-label">PREVENT 10-yr CVD%</div>
+            </div>
+
+            <div class="score-item">
+              <div class="score-val" id="sc_frs_display">--</div>
+              <div class="score-label">Framingham 10-yr%</div>
+            </div>
+
+            <div class="score-item">
+              <div class="score-val" id="sc_risk_cat">--</div>
+              <div class="score-label">Risk Category</div>
+            </div>
+          </div>
+          <div class="sc">
+            <div class="sc-title">
+              <span class="sc-title-bar amber"></span>
+              AHA PREVENT Score (2023) — Input Variables
+            </div>
+
+            <div class="fg fg-4">
+              <div class="fld">
+                <label>Age <span class="unit">years</span></label>
+                <input type="number" id="sc_age" readonly class="calc-out" />
+              </div>
+
+              <div class="fld">
+                <label>Sex</label>
+                <input type="text" id="sc_sex" readonly class="calc-out" />
+              </div>
+
+              <div class="fld">
+                <label>Systolic BP <span class="unit">(mmHg)</span></label>
+                <input type="number" id="sc_sbp" step="0.1" />
+              </div>
+
+              <div class="fld">
+                <label>Non-HDL-C <span class="unit">(mg/dL)</span></label>
+                <input type="number" id="sc_nonhdl" step="0.1" />
+              </div>
+
+              <div class="fld">
+                <label>HDL-C <span class="unit">(mg/dL)</span></label>
+                <input type="number" id="sc_hdl" step="0.1" />
+              </div>
+
+              <div class="fld">
+                <label>HbA1c <span class="unit">(%)</span></label>
+                <input type="number" id="sc_hba1c" step="0.1" />
+              </div>
+
+              <div class="fld">
+                <label>eGFR <span class="unit">(mL/min/1.73m²)</span></label>
+                <input type="number" id="sc_egfr" step="0.1" />
+              </div>
+              <div class="fld">
+                <label>On BP Treatment?</label>
+                <select id="sc_bptx">
+                  <option value="0">No</option>
+                  <option value="1">Yes</option>
+                </select>
+              </div>
+
+              <div class="fld">
+                <label>On Statin?</label>
+                <select id="sc_statin">
+                  <option value="0">No</option>
+                  <option value="1">Yes</option>
+                </select>
+              </div>
+
+              <div class="fld">
+                <label>Diabetes?</label>
+                <select id="sc_dm">
+                  <option value="0">No</option>
+                  <option value="1">Yes</option>
+                </select>
+              </div>
+
+              <div class="fld">
+                <label>Current Smoker?</label>
+                <select id="sc_smoke">
+                  <option value="0">No</option>
+                  <option value="1">Yes</option>
+                </select>
+              </div>
+
+              <div class="fld">
+                <label
+                  >PREVENT 10-yr CVD Risk <span class="unit">(%)</span></label
+                >
+                <input
+                  type="number"
+                  id="sc_prevent"
+                  step="0.1"
+                  onchange="updateScoreDisplay()"
+                />
+              </div>
+            </div>
+          </div>
+          <div class="sc">
+            <div class="sc-title">
+              <span class="sc-title-bar amber"></span>
+              Framingham Risk Score — 10 Year CVD
+            </div>
+
+            <div class="fg fg-4">
+              <div class="fld">
+                <label
+                  >Total Cholesterol <span class="unit">(mg/dL)</span></label
+                >
+                <input type="number" id="frs_tc" step="0.1" />
+              </div>
+
+              <div class="fld">
+                <label>HDL-C <span class="unit">(mg/dL)</span></label>
+                <input type="number" id="frs_hdl" step="0.1" />
+              </div>
+
+              <div class="fld">
+                <label>FRS 10-year Risk <span class="unit">(%)</span></label>
+                <input
+                  type="number"
+                  id="sc_frs"
+                  step="0.1"
+                  onchange="updateScoreDisplay()"
+                />
+              </div>
+
+              <div class="fld">
+                <label>Risk Category</label>
+                <input type="text" id="sc_riskcat" readonly class="calc-out" />
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- ===============================================
+            PANEL: MICROGREEN COMPLIANCE
+           =============================================== -->
+
+        <div class="panel" id="p_micro">
+          <div class="panel-heading">
+            Microgreen Intervention Compliance
+            <span class="ph-badge">POST GROUP ONLY</span>
+          </div>
+
+          <div class="sc">
+            <div class="sc-title">
+              <span class="sc-title-bar teal"></span>
+              Fortnightly Compliance Records
+            </div>
+
+            <table class="ct">
+              <thead>
+                <tr>
+                  <th>Week</th>
+                  <th>Dose Delivered (g)</th>
+                  <th>Dose Consumed (g)</th>
+                  <th>Compliance %</th>
+                  <th>Broccoli Quality</th>
+                  <th>Tolerability</th>
+                  <th>Notes</th>
+                </tr>
+              </thead>
+
+              <tbody id="compliance_table"></tbody>
+            </table>
+            <div class="sc-title">
+              <span class="sc-title-bar teal"></span>
+              Compliance Summary
+            </div>
+
+            <div class="fg fg-4">
+              <div class="fld">
+                <label>Overall Compliance <span class="unit">(%)</span></label>
+                <input
+                  type="number"
+                  id="comp_overall"
+                  readonly
+                  class="calc-out"
+                  step="0.1"
+                />
+              </div>
+
+              <div class="fld">
+                <label>Compliance Category</label>
+                <input type="text" id="comp_cat" readonly class="calc-out" />
+              </div>
+
+              <div class="fld">
+                <label>Missed Weeks</label>
+                <input type="number" id="comp_missed" />
+              </div>
+
+              <div class="fld">
+                <label>Reason for Non-compliance</label>
+                <select id="comp_reason">
+                  <option>N/A (compliant)</option>
+                  <option>Taste/palatability</option>
+                  <option>GI discomfort</option>
+                  <option>Travel/absence</option>
+                  <option>Allergy reaction</option>
+                  <option>Illness</option>
+                  <option>Others</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- ===============================================
+            PANEL: ADVERSE EVENTS
+            =============================================== -->
+
+        <div class="panel" id="p_adverse">
+          <div class="panel-heading">
+            Adverse Events & Safety Monitoring
+            <span class="ph-badge">SAFETY</span>
+          </div>
+
+          <div class="sc">
+            <div class="sc-title">
+              <span class="sc-title-bar red"></span>
+              Adverse Event Log
+            </div>
+
+            <table class="ct">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Date</th>
+                  <th>Event Description</th>
+                  <th>Severity</th>
+                  <th>Relationship</th>
+                  <th>Action Taken</th>
+                  <th>Resolved?</th>
+                </tr>
+              </thead>
+
+              <tbody id="ae_table">
+                <tr>
+                  <td>1</td>
+                  <td><input type="date" style="width: 120px" /></td>
+                  <td><input type="text" placeholder="Describe event" /></td>
+                  <td>
+                    <select style="width: 100px">
+                      <option>None</option>
+                      <option>Mild</option>
+                      <option>Moderate</option>
+                      <option>Severe</option>
+                      <option>SAE</option>
+                    </select>
+                  </td>
+
+                  <td>
+                    <select style="width: 110px">
+                      <option>Unrelated</option>
+                      <option>Unlikely</option>
+                      <option>Possible</option>
+                      <option>Probable</option>
+                      <option>Definite</option>
+                    </select>
+                  </td>
+
+                  <td>
+                    <input type="text" placeholder="Action" />
+                  </td>
+
+                  <td>
+                    <select style="width: 80px">
+                      <option>Yes</option>
+                      <option>No</option>
+                      <option>Ongoing</option>
+                    </select>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+
+            <div class="fg fg-3" style="margin-top: 14px">
+              <div class="fld">
+                <label>Total AEs Reported</label>
+                <input type="number" id="ae_total" value="0" />
+              </div>
+
+              <div class="fld">
+                <label>SAEs (Serious AEs)</label>
+                <input type="number" id="ae_serious" value="0" />
+              </div>
+
+              <div class="fld">
+                <label>Withdrawn from Study?</label>
+                <select id="ae_withdrawn">
+                  <option>No</option>
+                  <option>Yes – AE</option>
+                  <option>Yes – voluntary</option>
+                  <option>Yes – lost to follow-up</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- ===============================================
+            PANEL: PARTICIPANT SUMMARY
+            =============================================== -->
+
+        <div class="panel" id="p_summary">
+          <div class="panel-heading">
+            Participant Data Summary
+            <span class="ph-badge">REVIEW</span>
+          </div>
+
+          <div id="summary_content"></div>
+
+          <div class="sc" style="margin-top: 12px">
+            <div class="sc-title">
+              <span class="sc-title-bar amber"></span>
+              Data Completeness Checklist
+            </div>
+
+            <table class="ct">
+              <thead>
+                <tr>
+                  <th>Module</th>
+                  <th>Status</th>
+                  <th>Missing Fields</th>
+                </tr>
+              </thead>
+
+              <tbody id="completeness_table">
+                <tr>
+                  <td>Demographics</td>
+                  <td><span class="badge badge-ctrl">✓ Complete</span></td>
+                  <td>—</td>
+                </tr>
+
+                <tr>
+                  <td>Anthropometry</td>
+                  <td><span class="badge badge-ctrl">✓ Complete</span></td>
+                  <td>—</td>
+                </tr>
+                <tr>
+                  <td>Risk Factors</td>
+                  <td>
+                    <span class="badge badge-test" style="background: #ffeb80">
+                      ⚠ Partial
+                    </span>
+                  </td>
+                  <td>Smoking status</td>
+                </tr>
+
+                <tr>
+                  <td>FABP-NIR</td>
+                  <td><span class="badge badge-ctrl">✓ Complete</span></td>
+                  <td>—</td>
+                </tr>
+
+                <tr>
+                  <td>HRV</td>
+                  <td><span class="badge badge-ctrl">✓ Complete</span></td>
+                  <td>—</td>
+                </tr>
+
+                <tr>
+                  <td>Oxidative Stress</td>
+                  <td>
+                    <span class="badge badge-test" style="background: #ffeb80">
+                      ⚠ Partial
+                    </span>
+                  </td>
+                  <td>GPx, 8-OHdG</td>
+                </tr>
+
+                <tr>
+                  <td>SNP Genotyping</td>
+                  <td>
+                    <span
+                      class="badge"
+                      style="background: var(--red-color, var(--red))"
+                    >
+                      ✗ Pending
+                    </span>
+                  </td>
+                  <td>All 9 SNPs</td>
+                </tr>
+
+                <tr>
+                  <td>Shannon J′</td>
+                  <td>
+                    <span
+                      class="badge"
+                      style="background: var(--red-color, var(--red))"
+                    >
+                      ✗ Pending
+                    </span>
+                  </td>
+                  <td>Requires SNP data</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <!-- ACTION BAR -->
+
+    <div class="action-bar">
+      <button class="btn btn-prev" onclick="prevSection()">◀ Prev</button>
+
+      <button class="btn btn-next" onclick="nextSection()">Next ▶</button>
+
+      <button class="btn btn-save" onclick="saveRecord()">
+        💾 Save Record
+      </button>
+
+      <button class="btn btn-export" onclick="exportCSV()">⬇ Export CSV</button>
+
+      <div class="status-msg" id="status_msg"></div>
+    </div>
+
+    <script src="script.js?v=2"></script>
+  </body>
+</html>

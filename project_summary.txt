@@ -1,0 +1,173 @@
+================================================================================
+GREENAGE-KL / MIKRA-EPIGEN-2026 CLINICAL DATA ENTRY SYSTEM
+Comprehensive Overall Project Summary
+================================================================================
+
+1. PROJECT BACKGROUND & OBJECTIVES
+--------------------------------------------------------------------------------
+The GREENAGE-KL study is designed to address a critical healthcare challenge: the
+cardiovascular crisis in Kerala, where Coronary Artery Disease (CAD) prevalence 
+substantially exceeds national averages and manifests early, disproportionately 
+afflicting the 20-40 age group. 
+
+Objectives:
+*   Early Molecular Detection: Utilizes Fatty Acid Binding Protein (FABP) 
+    quantified by near-infrared (NIR) spectroscopy as a novel pre-clinical biomarker.
+*   Precision Nutrition Modulation: Evaluates the efficacy of sulforaphane-rich 
+    cruciferous microgreens (broccoli, red radish, fenugreek; 20-50 g/day) as 
+    epigenetic modulators targeting DNA methylation, histone acetylation, and 
+    reducing NRF2/KEAP1-axis oxidative stress.
+*   Chaos-to-Order Genomics: Integrates a dual-layer Shannon Codon Entropy (J')
+    framework to calculate codon degeneracy scores and model biological resilience 
+    against genomic vulnerability.
+*   Cohort Study Design: A 12-month prospective cohort enrolling 500 participants 
+    (250 in the TEST group, and 250 age-sex matched CTRLs) across all 14 Kerala 
+    districts.
+
+2. SOFTWARE ARCHITECTURE
+--------------------------------------------------------------------------------
+The system is implemented as a lightweight, high-performance Single-Page 
+Application (SPA) consisting of three core static web modules:
+
+*   index.html: Defines the structure, layout, top progress banners, enrollment 
+    mini-map, and 16 modular form panels.
+*   styles.css: Implements visual tokens, clean grids, responsive tables, flex 
+    sidebar layouts, and modern visual states (active, completed, warning, error).
+*   script.js: Coordinates patient selection, local caching, CSV exports, dynamic 
+    event listeners, and automated clinical calculations.
+
+Data is stored client-side in browser LocalStorage under the key "greenage_data" 
+as an aggregated JSON cohort database. On load, the file reads the data cache 
+and populates the visual enrollment progress mini-map dynamically.
+
+3. STATE FLOW & PATIENT COHORT NAVIGATION
+--------------------------------------------------------------------------------
+Records are retrieved and updated using a combined Unique Record Key:
+Record Key Format: "Group-PID-Timepoint" (e.g., "TEST-005-BL" or "CTRL-102-M3")
+*   Group: "TEST" (Test Group) or "CTRL" (Control Group).
+*   Participant ID (PID): Range from 1 to 250.
+*   Timepoint: Baseline ("BL"), Month 3 ("M3"), Month 6 ("M6"), or Month 12 ("M12").
+
+Enrollment Mini-Map:
+Generates a 250-cell visual grid matching the active group (squares for Test, 
+circles for Control). Cells are color-coded to show status:
+*   Green (Teal): Saved (Data exists for Baseline).
+*   Amber: Current active patient.
+*   Gray: Pending enrollment (No data saved).
+
+4. MODULAR DATA PANELS & CLINICAL CALCULATIONS
+--------------------------------------------------------------------------------
+The application is partitioned into 16 sections, each with dedicated logic:
+
+A. Demographics & Identification (Panel: p_demo)
+   - Inputs: Name, Study Code, Date of Birth, District (14 Kerala districts), 
+     Sex, Domicile, Consent Date, Lifestyle variables, etc.
+   - Calculations: 
+     * Age = Math.floor((Current Date - Date of Birth) / (365.25 * 24 * 3600 * 1000))
+
+B. Anthropometry (Panel: p_anthro)
+   - Inputs: Height (cm), Weight (kg), Waist, Hip, Neck, Body Fat %, Muscle Mass.
+   - Calculations:
+     * BMI = Weight / (Height / 100)^2
+     * BMI Category (Asian Specific): Underweight (<18.5), Normal (18.5 to 22.9), 
+       Overweight (23 to 24.9), Obese I (25 to 29.9), Obese II (>=30)
+     * Waist-Hip Ratio (WHR) = Waist / Hip
+
+C. Blood Pressure & Vital Signs (Panel: p_bp)
+   - Inputs: Systolic/Diastolic readings (s1, s2, d1, d2), Heart Rate, SpO2, Temp.
+   - Calculations:
+     * Mean SBP = (s1 + s2) / 2
+     * Mean DBP = (d1 + d2) / 2
+     * Pulse Pressure = SBP Average - DBP Average
+     * Mean Arterial Pressure (MAP) = DBP Average + (Pulse Pressure / 3)
+     * AHA BP Classification: Normal, Elevated, Stage 1 HTN, Stage 2 HTN.
+
+D. Laboratory Tests (Panel: p_labs)
+   - Inputs: Lipids (TC, LDL, HDL, TG), Glycemia (FBG, Insulin, HbA1c), Renal 
+     and Hepatic markers (Creatinine, eGFR, ALT, AST, hsCRP, NT-proBNP, Vit D).
+   - Calculations:
+     * Non-HDL-C = Total Cholesterol - HDL
+     * TC/HDL Ratio = Total Cholesterol / HDL
+     * LDL/HDL Ratio = LDL / HDL
+     * VLDL = Triglycerides / 5
+     * HOMA-IR = (FBG * Insulin) / 405
+
+E. FABP-NIR Spectroscopy (Panel: p_fabp)
+   - Inputs: Spectroscopy Result (ng/mL), Wavelengths, Batch No.
+   - Calculations:
+     * FABP Category: Normal (<2), Mildly Elevated (2-6), Elevated (6-10), 
+       High Risk (>=10 ng/mL).
+
+F. Echocardiography (Panel: p_echo)
+   - Inputs: LVEF, GLS, E-wave, A-wave, e' Septal, e' Lateral.
+   - Calculations:
+     * LVEF Category: Normal (>=55), Mildly Reduced (40-54), Reduced (<40).
+     * GLS Category: Normal (<= -20%), Mildly Abnormal (-18% to -20%), 
+       Subclinical LV Dysfunction (> -18%).
+     * E/A Ratio = E-wave / A-wave
+     * E/e' Ratio = E-wave / ((e' Septal + e' Lateral) / 2)
+
+G. CardioSense HRV (Panel: p_hrv)
+   - Inputs: SDNN, RMSSD, pNN50, LF/HF, Shannon Entropy.
+   - Calculations:
+     * Autonomic Balance: Parasympathetic Dominance (<1.0), Balanced (1.0 to 2.5), 
+       Mild Sympathetic Dominance (2.5 to 4.0), Sympathetic Dominance (>4.0).
+
+H. Oxidative Stress (Panel: p_oxid)
+   - Inputs: MDA, SOD, GPx, Catalase, GSH, GSSG, 8-OHdG.
+   - Calculations:
+     * GSH/GSSG Ratio = GSH / GSSG
+     * Oxidative Stress Index = (MDA / SOD) * 100
+     * MDA/SOD Categories: Normal vs. Elevated Oxidative Stress.
+
+I. Epigenetic Markers (Panel: p_epigen)
+   - Inputs: Global 5-mC, NRF2 Promoter Methylation, DNMT Levels, qPCR expressions.
+
+J. SNP Genotyping Panel (Panel: p_snp)
+   - Inputs: Genotypes for ACE, PCSK9, HMGCR, MTHFR, TCF7L2, FTO, PPARG, NRF2.
+   - Calculations:
+     * Genotype-specific risk allele mapping, statin response, and Folate actions.
+     * Genomic Risk Score (0-16 points scale).
+     * Risk Tertile classification (Low: 0-5, Intermediate: 6-10, High: 11-16).
+
+K. Shannon J' Entropy Framework (Panel: p_shannon)
+   - Inputs: Observed Shannon H' value across 21 codon degeneracy families.
+   - Calculations:
+     * Family Resilience J' = H' / H_max
+     * Composite Mean J' = Average J' of all active amino acid families.
+     * Intervention Trigger: Escalate sulforaphane dose if >=3 low J' families.
+
+L. Cardiovascular Risk Scores (Panel: p_scores)
+   - Inputs/Outputs: AHA PREVENT score and Framingham (FRS) scores.
+
+M. Microgreen Intervention Compliance (Panel: p_micro)
+   - Inputs: Fortnightly consumed/delivered logs across 26 fortnights.
+   - Calculations:
+     * Compliance % = (Consumed Dose / Delivered Dose) * 100
+     * Overall Cohort Compliance % = Average of all completed fortnights.
+
+N. Adverse Events & Safety (Panel: p_adverse)
+   - Inputs: AE severity log, relationship to intervention, SAE classification.
+
+O. Participant Data Summary (Panel: p_summary)
+   - Calculations: Dynamic validation of completed inputs per participant, 
+     displaying Complete/Partial/Pending badges and lists of missing fields.
+
+5. KEY DEVELOPMENTS & ENGINEERING FIXES
+--------------------------------------------------------------------------------
+Recent developments resolved several functional, layout, and performance issues:
+
+*   Cleared Compliance Form Crashes: Solved the element ID trailing whitespace 
+    bug (`comp_del_${w} `) in compliance calculators, restoring full W2-W52 calculations.
+*   Repaired Navigation Architecture: Re-routed the sidebar links to separate
+    "Blood Pressure & Vitals" and "Laboratory Tests" into distinct panels.
+*   Genomic Logic & Inputs: Implemented the missing MTHFR and FTO genotype select 
+    dropdown inputs and mapped the 16-point Genomic Risk Score and Tertiles.
+*   Dynamic Summary Implementation: Replaced the static HTML checklist table 
+    with a script checking required/optional inputs per module in real time.
+*   Data Leakage Protection: Rewrote loadRecord() to clear both raw inputs and 
+    computed outputs before loading patient data, and triggered recalculations 
+    upon patient navigation.
+*   Bypassed Asset Caching: Cleaned up redundant HTML files and added versioning 
+    cache-busters (`?v=2`) to script/stylesheet links inside index.html.
+================================================================================
